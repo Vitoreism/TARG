@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import plotext as plt
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
@@ -88,5 +88,5 @@ plt.plot(real_dates[-100:], predicted_prices, label="Previsão no Teste", color=
 plt.title("Previsão de Preços BBAS3")
 plt.xlabel("Data")
 plt.ylabel("Preço")
-plt.legend()
+#plt.legend()
 plt.show()
