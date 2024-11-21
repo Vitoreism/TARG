@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotext as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
@@ -23,7 +23,7 @@ def create_sequences(data, window_size):
         y.append(data[i + window_size])
     return np.array(X), np.array(y)
 
-window_size = 90
+window_size = 60
 X, y = create_sequences(scaled_data, window_size)
 
 # Dividir em treino e teste
@@ -37,13 +37,13 @@ X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
 
 # 3. Construir o Modelo LSTM
 model = Sequential([
-    LSTM(50, return_sequences=True, input_shape=(window_size, 1)),
-    LSTM(50, return_sequences=False),
-    Dense(25),
+    LSTM(150, return_sequences=True, input_shape=(window_size, 1)),
+    LSTM(100, return_sequences=False),
+    Dense(50),
     Dense(1)
 ])
 model.compile(optimizer='adam', loss='mean_squared_error')
-model.fit(X_train, y_train, batch_size=32, epochs=50, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, batch_size=32, epochs=100, validation_data=(X_test, y_test))
 
 # 4. Fazer Previsões no Conjunto de Teste
 predictions = model.predict(X_test)
@@ -68,12 +68,25 @@ future_predictions = scaler.inverse_transform(np.array(future_predictions).resha
 future_dates = pd.date_range(start=data.index[-1], periods=future_days + 1, inclusive='right')
 
 # 6. Plotar os Resultados
-plt.figure(figsize=(14, 7))
-plt.plot(data.index, data['Close'], label='Preço Real')
-plt.plot(data.index[-len(predictions):], predictions, label='Previsão no Teste')
-plt.plot(future_dates, future_predictions, label='Previsão Futura', linestyle='dashed')
-plt.title('Previsão de Preço das Ações do BBAS3 com LSTM')
-plt.xlabel('Data')
-plt.ylabel('Preço de Fechamento')
+#plt.figure(figsize=(14, 7))
+#plt.plot(data.index, data['Close'], label='Preço Real')
+#plt.plot(data.index[-len(predictions):], predictions, label='Previsão no Teste')
+#plt.plot(future_dates, future_predictions, label='Previsão Futura', linestyle='dashed')
+#plt.title('Previsão de Preço das Ações do BBAS3 com LSTM')
+#plt.xlabel('Data')
+#plt.ylabel('Preço de Fechamento')
+#plt.legend()
+#plt.show()
+
+
+real_dates = data.index[-len(y_test_actual):]  # Últimos dias reais
+real_prices = y_test_actual.flatten()[-100:]  # Apenas os últimos 100 valores
+predicted_prices = predictions.flatten()[-100:]
+
+plt.plot(real_dates[-100:], real_prices, label="Preço Real", color="blue")
+plt.plot(real_dates[-100:], predicted_prices, label="Previsão no Teste", color="red")
+plt.title("Previsão de Preços BBAS3")
+plt.xlabel("Data")
+plt.ylabel("Preço")
 plt.legend()
 plt.show()
