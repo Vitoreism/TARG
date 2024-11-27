@@ -1,7 +1,7 @@
 import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
-import {IBM_Plex_Sans} from 'next/font/google';
+import { IBM_Plex_Sans } from 'next/font/google';
 
 const ibmPlexSans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '600'] });
 
@@ -13,6 +13,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <link rel="icon" href="/just_image.png" type="image/png"/>
+      </head>
       <body className={`${ibmPlexSans.className}`}>
         <nav className="bg-gray-800 fixed top-0 w-full shadow-md z-50">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center h-20">
@@ -20,8 +23,8 @@ export default function RootLayout({ children }) {
               <Image
                 src="/logo-removebg.png"
                 alt="Logo"
-                width={120} 
-                height={120} 
+                width={120}
+                height={120}
                 className="max-h-28 w-auto"
               />
             </Link>

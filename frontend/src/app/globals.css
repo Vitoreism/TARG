@@ -7,3 +7,27 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* Personalizando a Barra de Rolagem */
+::-webkit-scrollbar {
+  width: 12px; /* Largura da barra de rolagem */
+}
+
+::-webkit-scrollbar-track {
+  background: #2d2d2d; /* Cor do fundo da barra de rolagem */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7c4dff; /* Cor do polegar (a parte que o usuário arrasta) */
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6200ea; /* Cor do polegar quando o usuário passa o mouse */
+}
+
+::-webkit-scrollbar-corner {
+  background: #2d2d2d; /* Cor do canto onde as barras se encontram */
+}
