@@ -1,8 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from Backend.GPTnlp import GPT  # Importando o GPT conforme indicado
-from Backend.bbas3_data import get_stock_indicators  # Importando a função que calcula os indicadores
+from Backend.bbas3_data import get_stock_indicators, get_technical_data, get_fundamental_data  # Importações do backend
+from datetime import datetime
+from typing import List
+
 
 app = FastAPI()
 
@@ -34,6 +37,31 @@ class StockDataResponse(BaseModel):
     signal_line: float
     date: str
 
+class TechnicalDataResponse(BaseModel):
+    Date: str
+    Adj_Close: float
+    Close: float
+    High: float
+    Low: float
+    Open: float
+    Volume: int
+    Dividendos: float
+    RSI: float
+    MACD: float
+    Signal_Line: float
+
+class FundamentalDataResponse(BaseModel):
+    Ano: int
+    PL: float
+    PSR: float
+    PVP: float
+    Margem_Liquida: float
+    ROE: float
+    Margem_Bruta: float
+    Margem_EBIT: float
+    PEBIT: float
+    ROA: float
+
 # Função do Backend para Análise de Notícias
 def analyze_news_article(news_text: str) -> str:
     try:
@@ -60,11 +88,7 @@ def analyze_news_endpoint(article: NewsArticle):
 # GET: Obter indicadores de ações do Banco do Brasil (BBAS3)
 @app.get("/stock", response_model=StockDataResponse)
 def get_stock_data():
-    """
-    Endpoint para retornar os indicadores financeiros do Banco do Brasil (BBAS3).
-    """
     try:
-        # Chamar a função que calcula os indicadores
         stock_data = get_stock_indicators()
         return StockDataResponse(
             price=stock_data["price"],
@@ -75,3 +99,27 @@ def get_stock_data():
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter indicadores: {e}")
+
+@app.get("/technical-data", response_model=List[TechnicalDataResponse])
+def technical_data(
+    start_date: str = Query(None, regex=r"^\d{4}-\d{2}-\d{2}$"),
+    end_date: str = Query(None, regex=r"^\d{4}-\d{2}-\d{2}$")
+):
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+        end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+        technical_data = get_technical_data(start_date, end_date)
+        return technical_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter dados técnicos: {e}")
+
+
+@app.get("/fundamental-data", response_model=List[FundamentalDataResponse])
+def fundamental_data(year: int = None):
+    try:
+        fundamental_data = get_fundamental_data(year)
+        return fundamental_data
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Ano inválido. Por favor, forneça um número inteiro.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter dados fundamentalistas: {e}")
