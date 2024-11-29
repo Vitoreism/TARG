@@ -2,7 +2,7 @@
 
 # dependencies
 .venv
-/node_modules
+node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,7 +15,7 @@
 /coverage
 
 # next.js
-/.next/
+.next/
 /out/
 
 # production
