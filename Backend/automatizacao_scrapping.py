@@ -13,8 +13,6 @@ params = {
     'language': 'pt', 
     'pageSize': 100,  
     'apiKey': 'edd160e0d4bd42148f33d34b91275158', 
-    'from': start_date,  # Data inicial para as notícias (formato YYYY-MM-DD)
-    'to': end_date,
 }
 
 
@@ -43,9 +41,6 @@ def pull_news():
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição: {e}")
 
-pull_news()
-
-
 # Função para salvar as notícias em um arquivo CSV
 def salvar_noticias_csv(noticias):
     # Criar um DataFrame a partir das notícias
@@ -62,7 +57,7 @@ def salvar_noticias_csv(noticias):
     df.to_csv('noticias_bbas3.csv', index=False)
 
 # Função para puxar as notícias da News API e evitar duplicatas
-def pull_news():
+def save_news():
     noticias = []  # Lista para armazenar as notícias
     urls_vistas = set()  # Conjunto para armazenar as URLs já vistas e evitar duplicatas
     page = 1  # Começar pela primeira página
@@ -114,3 +109,7 @@ def pull_news():
     # Salvar as notícias no CSV
     if noticias:
         salvar_noticias_csv(noticias)
+
+
+pull_news()
+save_news()
