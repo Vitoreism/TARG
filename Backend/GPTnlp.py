@@ -6,7 +6,7 @@ load_dotenv()
 gpt_key = os.environ.get("OPENAI_KEY")
 
 class GPT():
-    def _init_(self, api_key: str):
+    def __init__(self, api_key: str):
         self.client = openai.OpenAI(api_key=api_key)
         self.prompt = """"
         Ola, somos a TARG, empresa que está trabalhando com o mercado de ações!/ 
