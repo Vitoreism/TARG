@@ -4,23 +4,45 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.relative_locator import locate_with
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from time import sleep
+
 
 # Função para fazer scraping das notícias
 def scrape_news(url):
     # Configuração do Selenium para o Chrome
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Para rodar sem abrir a janela do navegador
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
     # Acesse a URL
     driver.get(url)
 
     # Aguarda até que o conteúdo necessário esteja carregado
-    WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "article-card_headline"))
-    )
+   # WebDriverWait(driver, 30).until(
+    #    EC.presence_of_element_located((By.CLASS_NAME, "article-card_headline"))
+    #)
+
+    sleep(10)
+
+
+    while True:
+        try:
+            # Espera até o botão "Carregar mais" aparecer na página
+            load_more_button = locate_with(By.TAG_NAME, "button").below({By.TAG_NAME: "span"}).below({By.ID: "infinite-handle"})
+            
+            # Clica no botão
+            load_more_button.click()
+            
+            # Aguarda 1 segundo entre os cliques
+            sleep(1)
+        except Exception as e:
+            # Se o botão não estiver mais disponível, interrompe o laço
+            print("Não há mais botões 'Carregar mais'. Finalizando.")
+            break
+
+
 
     # Pegue o HTML da página carregada
     html = driver.page_source
@@ -29,7 +51,7 @@ def scrape_news(url):
     soup = BeautifulSoup(html, 'html.parser')
 
     # Procura pelas notícias
-    news_items = soup.find_all('h3', class_='article-card_headline')
+    news_items = soup.find_all('h3', class_='article-card__headline')
 
     # Verificando o conteúdo encontrado
     if not news_items:
