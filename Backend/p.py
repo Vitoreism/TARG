@@ -26,23 +26,9 @@ def scrape_news(url):
 
     sleep(10)
 
-
-    while True:
-        try:
-            # Espera até o botão "Carregar mais" aparecer na página
-            load_more_button = locate_with(By.TAG_NAME, "button").below({By.TAG_NAME: "span"}).below({By.ID: "infinite-handle"})
-            
-            # Clica no botão
-            load_more_button.click()
-            
-            # Aguarda 1 segundo entre os cliques
-            sleep(1)
-        except Exception as e:
-            # Se o botão não estiver mais disponível, interrompe o laço
-            print("Não há mais botões 'Carregar mais'. Finalizando.")
-            break
-
-
+    """
+    A parte de clicar no botão de carregar mais não estava funcionando pra porra nenhuma
+    """
 
     # Pegue o HTML da página carregada
     html = driver.page_source
@@ -67,10 +53,10 @@ def scrape_news(url):
         # Coletar título
         title = item.get_text() if item else 'No title'
         
-        # Coletar URL da notícia
-        link_tag = item.find('a', href=True)
-        link = link_tag['href'] if link_tag else 'No link'
-        
+        """
+        Não estava dando para pegar os links das notícias
+        """
+
         # Coletar conteúdo da notícia (verifique a estrutura da página para ajustar)
         content_tag = item.find_next('p')
         content = content_tag.get_text() if content_tag else 'No content'
@@ -82,7 +68,6 @@ def scrape_news(url):
         # Armazenar dados
         news_data.append({
             'title': title,
-            'link': link,
             'content': content,
             'date': date
         })
@@ -101,6 +86,5 @@ news = scrape_news(url)
 # Exibindo as notícias coletadas
 for news_item in news:
     print(f"Título: {news_item['title']}")
-    print(f"Link: {news_item['link']}")
     print(f"Conteúdo: {news_item['content']}")
     print(f"Data: {news_item['date']}\n")
