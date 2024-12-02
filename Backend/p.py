@@ -19,7 +19,7 @@ def scrape_news(url):
     chrome_options.add_argument("--window-size=1920x1080")
     # chrome_options.add_argument("--headless")  # Descomente para executar em modo headless
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    driver = webdriver.chrome(service=Service(ChromeDriverManager().install(), options=chrome_options))
 
     # Lista para armazenar as notícias coletadas
     news_data = []
@@ -28,6 +28,23 @@ def scrape_news(url):
         # Acesse a URL
         print(f"Acessando a página principal: {url}")
         driver.get(url)
+        
+        out_of_page_div = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "OutOfPage"))
+        )
+    
+        iframe = out_of_page_div.find_element(By.TAG_NAME, "iframe")
+        driver.switch_to.frame(iframe) # Entrando no iframe do anuncio
+    
+        try:
+            fechar = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "fechar"))
+            )
+            fechar.click()
+            print("Anúncio fechado com sucesso.")
+            driver.switch_to.default_content() # Volta pro iframe principal
+        except Exception as e:
+            print(f'Não foi possível fechar o anúncio: {e}')
 
         # Aguarda até que os itens de notícia estejam presentes no DOM
         wait = WebDriverWait(driver, 30)  # Aguarda até 30 segundos
@@ -90,7 +107,7 @@ def scrape_news(url):
                 content = "\n".join([p.get_text(strip=True) for p in paragraphs]) if paragraphs else "No content"
 
                 # Coleta a data de publicação
-                date_tag = soup.find('span', class_='data')
+                date_tag = soup.find('time')
                 date = date_tag.get_text(strip=True) if date_tag else "No date"
 
                 # Armazena os dados da notícia
