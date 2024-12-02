@@ -1,11 +1,14 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from Backend.GPTnlp import GPT  # Importando o GPT conforme indicado
-from Backend.bbas3_data import get_stock_indicators, get_technical_data, get_fundamental_data  # Importações do backend
+from GPTnlp import GPT  # Importando o GPT conforme indicado
+from bbas3_data import get_stock_indicators, get_technical_data, get_fundamental_data  # Importações do backend
 from datetime import datetime
 from typing import List
+import os
 
+OPENAI_KEY = os.getenv('OPENAI_KEY')
+gpt_instance = GPT(OPENAI_KEY)
 
 app = FastAPI()
 
@@ -62,15 +65,6 @@ class FundamentalDataResponse(BaseModel):
     PEBIT: float
     ROA: float
 
-# Função do Backend para Análise de Notícias
-def analyze_news_article(news_text: str) -> str:
-    try:
-        gpt_instance = GPT()
-        analysis = gpt_instance.call_gpt(news_text)
-        return analysis
-    except Exception as e:
-        raise Exception(f"Erro ao chamar o GPT: {e}")
-
 # Rotas da API
 
 # POST: Analisar notícia usando GPT
@@ -79,8 +73,9 @@ def analyze_news_endpoint(article: NewsArticle):
     try:
         # Combinar título e conteúdo da notícia
         news_text = f"Título: {article.title}\nConteúdo: {article.content}"
+        print(news_text)
         # Chamar a função de análise
-        analysis = analyze_news_article(news_text)
+        analysis = gpt_instance.analyze_news_article(news_text)
         return NewsAnalysisResponse(analysis=analysis)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -102,8 +97,8 @@ def get_stock_data():
 
 @app.get("/technical-data", response_model=List[TechnicalDataResponse])
 def technical_data(
-    start_date: str = Query(None, regex=r"^\d{4}-\d{2}-\d{2}$"),
-    end_date: str = Query(None, regex=r"^\d{4}-\d{2}-\d{2}$")
+    start_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    end_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$")
 ):
     try:
         start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
