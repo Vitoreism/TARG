@@ -49,7 +49,7 @@ class GPT():
     
     def analyze_news_article(news_text: str, title: str) -> str:
         try:
-            analysis = gpt_instance.call_gpt(gpt_instance.prompt, f"titulo: {title}\ncorpo:{news_text}")
+            analysis = gpt_instance.call_gpt(gpt_instance.prompt, f"titulo: {title}\ncorpo:{news_text}".strip())
             return analysis
         except Exception as e:
             raise Exception(f"Erro ao chamar o GPT: {e}")
@@ -84,4 +84,4 @@ AoMetrópoles, o Banco do Brasil informou que esse é um desdobramento da opera�
 
 Receba notícias do Metrópoles no seuTelegrame fique por dentro de tudo! Basta acessar o canal:https://t.me/metropolesurgente.""")
 
-
+print(resposta)
