@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, NoSuchElementException
 from bs4 import BeautifulSoup
 import time
+from time import sleep
 
 def scrape_news(url):
     # Configuração do Selenium para o Chrome
@@ -31,7 +32,7 @@ def scrape_news(url):
         # Aguarda até que os itens de notícia estejam presentes no DOM
         wait = WebDriverWait(driver, 30)  # Aguarda até 30 segundos
         wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'article-card__headline')))
-
+        sleep(30)
         # Procura pelas notícias
         news_items = driver.find_elements(By.CLASS_NAME, 'article-card__headline')
 
