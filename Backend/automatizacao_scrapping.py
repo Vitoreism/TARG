@@ -99,6 +99,7 @@ def scrape_news(url):
             finally:
                 # Volta para a página inicial para processar a próxima notícia
                 driver.back()
+                sleep(3)
                 # Recria a lista de elementos para evitar referências obsoletas
                 try:
                     wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'article-card__headline')))
