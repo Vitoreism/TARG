@@ -1,4 +1,4 @@
-import { League_Spartan } from "next/font/google";
+import {League_Spartan} from "next/font/google";
 
 const leagueSpartan = League_Spartan({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -9,18 +9,17 @@ export default function HomePage() {
       <section
         className={`relative bg-cover bg-center flex items-center text-white ${leagueSpartan.className}`}
         style={{
-          backgroundImage: "url('/pexels-energepic-com-27411-159888.jpg')",
+          backgroundImage: "url('/background_home_page.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
+          minHeight: "92vh", // Garante que a imagem ocupe toda a altura da tela
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50"></div> {/* Sobreposição escura */}
-
-        {/* Contêiner Flex para posicionar o texto e a imagem lado a lado */}
+        
         <div className="relative z-10 flex items-center max-w-7xl mx-auto px-6 py-32">
-          {/* Texto à esquerda */}
-          <div className="max-w-lg mr-80">
+          <div className="max-w-lg mr-96">
             <h1 className="text-6xl font-bold mb-4 whitespace-nowrap">Transforme Notícias Em Lucro</h1>
             <h2 className="text-4xl font-medium mb-6">invista com inteligência</h2>
             <p className="text-lg">
@@ -31,7 +30,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Imagem à direita */}
           <div className="relative z-10 ml-auto">
             <img src="/just_image.png" alt="Logo" className="h-48" />
           </div>
