@@ -45,44 +45,42 @@ def calculate_macd(data, short_window=12, long_window=26, signal_window=9):
     return macd, signal
 
 data['RSI'] = calculate_rsi(data)
-
-
 data['MACD'], data['Signal Line'] = calculate_macd(data)
 
-# Obter o último valor de RSI
-ultimo_rsi = data['RSI'].iloc[-1]
-
-# Obter o último valor de MACD
-ultimo_macd = data['MACD'].iloc[-1]
-
-# Se quiser obter o último valor da Linha de Sinal (Signal Line)
-ultima_signal_line = data['Signal Line'].iloc[-1]
-
-
-def calculate_last_rsi(data):
-    if isinstance(pd.DataFrame, data):
-        ultimo_rsi = data['RSI'].iloc[-1]
-        return ultimo_rsi
-    else:
-        return "Dado inválido"
+# Função para obter o último valor dos indicadores
+def get_last_indicators(data):
+    if data.empty:
+        return {
+            'price': None,
+            'rsi': None,
+            'macd': None,
+            'signal_line': None,
+            'date': None
+        }
     
-def calculate_last_macd(data):
-    if isinstance(pd.DataFrame, data):
-        ultimo_macd = data['MACD'].iloc[-1]
-        return ultimo_macd
-    else:
-        return "Dado inválido"
+    # Obter o preço ajustado
+    price = data['Adj Close'].iloc[-1] if not data['Adj Close'].iloc[-1].empty else None
 
-def calculate_last_signal(data):
-    if isinstance(pd.DataFrame, data):
-        ultima_signal_line = data['Signal Line'].iloc[-1]
-        return ultima_signal_line
-    else:
-        return "Dado inválido"
+
+    
+    # Últimos valores do RSI, MACD e Signal Line
+    last_rsi = data['RSI'].iloc[-1] if pd.notnull(data['RSI'].iloc[-1]) else None
+    last_macd = data['MACD'].iloc[-1] if pd.notnull(data['MACD'].iloc[-1]) else None
+    last_signal_line = data['Signal Line'].iloc[-1] if pd.notnull(data['Signal Line'].iloc[-1]) else None
+    
+    # Data do último registro
+    last_date = data.index[-1].strftime('%Y-%m-%d')
+
+    return {
+        'price': price,
+        'rsi': last_rsi,
+        'macd': last_macd,
+        'signal_line': last_signal_line,
+        'date': last_date
+    }
     
 
-data['RSI'] = calculate_rsi(data)
-data['MACD'], data['Signal Line'] = calculate_macd(data)
+
 
 data_anualbb = [
     {
@@ -321,29 +319,8 @@ def get_fundamental_data(year=None):
 
 
 
-# Função principal para consolidar os indicadores
 def get_stock_indicators():
-    """
-    Processa os dados históricos do ticker e retorna os últimos valores de indicadores.
-    """
-    # Verificar se os dados foram carregados corretamente
-    if data.empty:
-        raise ValueError(f"Não foi possível carregar os dados para o ticker {ticker}.")
-
-    # Obter os últimos valores
-    price = data['Adj Close'].iloc[-1]
-    ultimo_rsi = calculate_last_rsi(data)
-    ultimo_macd = calculate_last_macd(data)
-    ultima_signal_line = calculate_last_signal(data)
-    date = data.index[-1].strftime('%Y-%m-%d')
-
-    return {
-        'price': price,
-        'rsi': ultimo_rsi,
-        'macd': ultimo_macd,
-        'signal_line': ultima_signal_line,
-        'date': date
-    }
+    return get_last_indicators(data)
 
 # Teste da função (opcional)
 if __name__ == "__main__":
