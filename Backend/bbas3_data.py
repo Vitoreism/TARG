@@ -14,11 +14,13 @@ data = yf.download(ticker, start=start_date, end=end_date)
 dividends = yf.Ticker(ticker).dividends
 data['Dividendos'] = dividends.reindex(data.index).fillna(0)
 #Possui os dados diários apenas de: preço de abertura, fechamento, maior  e menor preço do dia, e quantas ações negociadas
-data
+data.columns = [col[0] for col in data.columns]
+data.rename(columns={'Adj Close': 'Adj_Close'}, inplace=True)
+print(data)
 
-def calculate_rsi(data, window=14):
+def calculate_rsi(data, window=1):
     # Calcula a diferença diária nos preços ajustados
-    delta = data['Adj Close'].diff()
+    delta = data['Adj_Close'].diff()
 
     # Separa os ganhos e perdas
     gain = delta.clip(lower=0)  # Apenas valores positivos
@@ -38,14 +40,14 @@ def calculate_rsi(data, window=14):
     return rsi
 
 def calculate_macd(data, short_window=12, long_window=26, signal_window=9):
-    ema_short = data['Adj Close'].ewm(span=short_window, adjust=False).mean()
-    ema_long = data['Adj Close'].ewm(span=long_window, adjust=False).mean()
+    ema_short = data['Adj_Close'].ewm(span=short_window, adjust=False).mean()
+    ema_long = data['Adj_Close'].ewm(span=long_window, adjust=False).mean()
     macd = ema_short - ema_long
     signal = macd.ewm(span=signal_window, adjust=False).mean()
     return macd, signal
 
 data['RSI'] = calculate_rsi(data)
-data['MACD'], data['Signal Line'] = calculate_macd(data)
+data['MACD'], data['Signal_Line'] = calculate_macd(data)
 
 # Função para obter o último valor dos indicadores
 def get_last_indicators(data):
@@ -59,7 +61,7 @@ def get_last_indicators(data):
         }
     
     # Obter o preço ajustado
-    price = data['Adj Close'].iloc[-1] if not data['Adj Close'].iloc[-1].empty else None
+    price = data['Adj_Close'].iloc[-1] if not data['Adj Close'].iloc[-1].empty else None
 
 
     
@@ -284,17 +286,17 @@ def get_technical_data(start_date=None, end_date=None):
             end_date = pd.to_datetime(end_date, errors='coerce')
             if pd.isnull(end_date):
                 raise ValueError("Data de término inválida. Por favor, use 'YYYY-MM-DD'.")
-
         # Aplicar filtros
         filtered_data = data
+        print(filtered_data)
+        
         if start_date:
             filtered_data = filtered_data[filtered_data.index >= start_date]
+            
         if end_date:
             filtered_data = filtered_data[filtered_data.index <= end_date]
-
         if filtered_data.empty:
             return {"message": "Nenhum dado técnico encontrado no intervalo fornecido."}
-
         return filtered_data.reset_index().to_dict(orient="records")
     except Exception as e:
         return {"error": f"Erro ao obter dados técnicos: {str(e)}"}

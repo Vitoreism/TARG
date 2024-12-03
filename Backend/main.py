@@ -41,7 +41,7 @@ class StockDataResponse(BaseModel):
     date: str
 
 class TechnicalDataResponse(BaseModel):
-    Date: str
+    Date: datetime
     Adj_Close: float
     Close: float
     High: float
@@ -104,7 +104,7 @@ def technical_data(
         start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
         end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
         technical_data = get_technical_data(start_date, end_date)
-        return technical_data
+        return technical_data[0]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter dados técnicos: {e}")
 
