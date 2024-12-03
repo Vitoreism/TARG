@@ -19,7 +19,7 @@ def scrape_news(url):
     chrome_options.add_argument("--window-size=1920x1080")
     # chrome_options.add_argument("--headless")  # Descomente para executar em modo headless
 
-    driver = webdriver.chrome(service=Service(ChromeDriverManager().install(), options=chrome_options))
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install(), options=chrome_options))
 
     # Lista para armazenar as notícias coletadas
     news_data = []
