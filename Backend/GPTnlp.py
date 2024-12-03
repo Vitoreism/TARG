@@ -83,5 +83,3 @@ AoMetrópoles, o Banco do Brasil informou que esse é um desdobramento da opera�
 ...
 
 Receba notícias do Metrópoles no seuTelegrame fique por dentro de tudo! Basta acessar o canal:https://t.me/metropolesurgente.""")
-
-print(resposta)

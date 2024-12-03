@@ -95,7 +95,7 @@ def get_stock_data():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter indicadores: {e}")
 
-@app.get("/technical-data", response_model=List[TechnicalDataResponse])
+@app.get("/technical-data", response_model=TechnicalDataResponse)
 def technical_data(
     start_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
     end_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$")
@@ -109,7 +109,7 @@ def technical_data(
         raise HTTPException(status_code=500, detail=f"Erro ao obter dados técnicos: {e}")
 
 
-@app.get("/fundamental-data", response_model=List[FundamentalDataResponse])
+@app.get("/fundamental-data", response_model=FundamentalDataResponse)
 def fundamental_data(year: int = None):
     try:
         fundamental_data = get_fundamental_data(year)
