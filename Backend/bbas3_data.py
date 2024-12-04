@@ -12,11 +12,16 @@ end_date = datetime.now().strftime("%Y-%m-%d") #data dinamica
 def b_periodo(start:str, end:str, ticker:str='BBAS3.SA'):
     # baixar dados definidos
     data = yf.download(ticker, start=start, end=end)
-    data = data[[ 'Open', 'Volume', 'Close', 'Adj Close']]
+    data = data[['Open', 'Volume', 'Close', 'Adj Close']]
+    print(data)
+    data.rename(columns={'Adj Close': 'Adj_Close'}, inplace=True)
+    data.columns = [col[0] for col in data.columns]
+    print(data)
     data['RSI'] = calculate_rsi(data)
-    data['MACD'], data['Signal Line'] = calculate_macd(data)
+    data['MACD'], data['Signal_Line'] = calculate_macd(data)
     data.dropna(inplace=True)
     
+    print(f"Olha ai!!!!\n {data}\n\n")
     return data
 
 # Baixar os dados históricos
@@ -29,9 +34,8 @@ while True:
         
 dividends = yf.Ticker(ticker).dividends
 data['Dividendos'] = dividends.reindex(data.index).fillna(0)
-#Possui os dados diários apenas de: preço de abertura, fechamento, maior  e menor preço do dia, e quantas ações negociadas
 data.columns = [col[0] for col in data.columns]
-data.rename(columns={'Adj Close': 'Adj_Close'}, inplace=True)
+#Possui os dados diários apenas de: preço de abertura, fechamento, maior  e menor preço do dia, e quantas ações negociadas
 
 def calculate_rsi(data, window=14):
     # Calcula a diferença diária nos preços ajustados
@@ -61,6 +65,7 @@ def calculate_macd(data, short_window=12, long_window=26, signal_window=9):
     signal = macd.ewm(span=signal_window, adjust=False).mean()
     return macd, signal
 
+data.rename(columns={'Adj Close': 'Adj_Close'}, inplace=True)
 data['RSI'] = calculate_rsi(data)
 data['MACD'], data['Signal_Line'] = calculate_macd(data)
 
