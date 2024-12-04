@@ -1,6 +1,8 @@
 import openai
 from dotenv import load_dotenv
 import os
+from pymongo import MongoClient, errors
+
 
 load_dotenv()
 gpt_key = os.environ.get("OPENAI_KEY")
@@ -47,13 +49,71 @@ class GPT():
 
         return response_content
     
-    def analyze_news_article(news_text: str, title: str) -> str:
+    def analyze_news_article(self, news_text: str, title: str) -> str:
         try:
-            analysis = gpt_instance.call_gpt(gpt_instance.prompt, f"titulo: {title}\ncorpo:{news_text}".strip())
+            analysis = self.call_gpt(self.prompt, f"Título: {title}\nCorpo: {news_text}".strip())
             return analysis
         except Exception as e:
             raise Exception(f"Erro ao chamar o GPT: {e}")
+        
+def get_db_collection():
+    """
+    Estabelece a conexão com o MongoDB e retorna a coleção desejada.
+    Cria um índice único no campo 'link' para evitar duplicatas.
+    """
+    try:
+        client = MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017/"))
+        db = client["news_database"]  # Substitua pelo nome do seu banco de dados
+        collection = db["news_collection"]  # Substitua pelo nome da sua coleção
+        # Cria um índice único no campo 'link' para evitar duplicatas
+        collection.create_index("link", unique=True)
+        print(f"Conectado ao MongoDB: {db.name}.{collection.name}")
+        return collection
+    except errors.ConnectionFailure as e:
+        print(f"Falha na conexão com o MongoDB: {e}")
+        exit(1)
+    except errors.PyMongoError as e:
+        print(f"Erro ao configurar a coleção: {e}")
+        exit(1)    
     
+
+def process_and_analyze_news():
+    # Instanciar a classe GPT
+    gpt_instance = GPT(api_key=gpt_key)
+
+    # Obter a coleção do MongoDB
+    collection = get_db_collection()
+
+    # Recuperar todas as notícias que ainda não foram analisadas
+    # Assumindo que há um campo 'analysis' que armazena o resultado da análise
+    query = {"analysis": {"$exists": False}}  # Filtra documentos sem análise
+    try:
+        news_cursor = collection.find(query)
+        for news in news_cursor:
+            title = news.get("title", "Sem Título")
+            content = news.get("content", "Sem Conteúdo")
+            link = news.get("link", "Sem Link")
+
+            print(f"Analisando notícia: {title}")
+
+            # Realizar a análise sentimental
+            analysis = gpt_instance.analyze_news_article(content, title)
+
+            # Atualizar o documento com a análise
+            try:
+                collection.update_one(
+                    {"_id": news["_id"]},
+                    {"$set": {"analysis": analysis}}
+                )
+                print(f"Análise concluída e armazenada para: {title}\n")
+            except errors.PyMongoError as e:
+                print(f"Erro ao atualizar a análise no MongoDB para '{title}': {e}\n")
+    except errors.PyMongoError as e:
+        print(f"Erro ao recuperar notícias do MongoDB: {e}")
+
+if __name__ == "__main__":
+    process_and_analyze_news()
+
 gpt_instance = GPT(api_key=gpt_key)
 
 resposta = gpt_instance.call_gpt(gpt_instance.prompt, """A Polícia Civil do Rio de Janeiro e o Ministério Público do estado (MPRJ) deflagraram, na manhã desta quinta-feira (21/11), uma operação contra fraudes noBanco do Brasil. Estima-se que o prejuízo ao banco foi de mais de R$ 40 milhões.
