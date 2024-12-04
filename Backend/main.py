@@ -1,10 +1,16 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from Backend.GPTnlp import GPT  # Importando o GPT conforme indicado
-from Backend.bbas3_data import get_stock_indicators, get_technical_data, get_fundamental_data  # Importações do backend
+from bbas3_data import get_stock_indicators, get_technical_data, get_fundamental_data  # Importações do backend
+from GPTnlp import GPT  # Importando o GPT conforme indicado
+from ModeloFunc import ModeloPrevisao
 from datetime import datetime
 from typing import List
+import os
+
+OPENAI_KEY = os.getenv('OPENAI_KEY')
+gpt_instance = GPT(OPENAI_KEY)
+modelo_instance = ModeloPrevisao('TARG2.keras')
 
 
 app = FastAPI()
@@ -38,7 +44,7 @@ class StockDataResponse(BaseModel):
     date: str
 
 class TechnicalDataResponse(BaseModel):
-    Date: str
+    Date: datetime
     Adj_Close: float
     Close: float
     High: float
@@ -62,15 +68,11 @@ class FundamentalDataResponse(BaseModel):
     PEBIT: float
     ROA: float
 
-# Função do Backend para Análise de Notícias
-def analyze_news_article(news_text: str) -> str:
-    try:
-        gpt_instance = GPT()
-        analysis = gpt_instance.call_gpt(news_text)
-        return analysis
-    except Exception as e:
-        raise Exception(f"Erro ao chamar o GPT: {e}")
-
+class ModeloPrevisaoResponse(BaseModel):
+    X_atual: datetime
+    Y_atual: float
+    X_fut: datetime
+    Y_fut: float
 # Rotas da API
 
 # POST: Analisar notícia usando GPT
@@ -79,11 +81,20 @@ def analyze_news_endpoint(article: NewsArticle):
     try:
         # Combinar título e conteúdo da notícia
         news_text = f"Título: {article.title}\nConteúdo: {article.content}"
+        print(news_text)
         # Chamar a função de análise
-        analysis = analyze_news_article(news_text)
+        analysis = gpt_instance.analyze_news_article(news_text)
         return NewsAnalysisResponse(analysis=analysis)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/get-prevision", response_model=ModeloPrevisaoResponse)
+def get_prevision():
+    try:
+        prevision = modelo_instance.prever_futuro()
+        return prevision
+    except Exception as e:
+        print(f"Erro ao gerar previsão: {e}")
 
 # GET: Obter indicadores de ações do Banco do Brasil (BBAS3)
 @app.get("/stock", response_model=StockDataResponse)
@@ -100,21 +111,21 @@ def get_stock_data():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter indicadores: {e}")
 
-@app.get("/technical-data", response_model=List[TechnicalDataResponse])
+@app.get("/technical-data", response_model=TechnicalDataResponse)
 def technical_data(
-    start_date: str = Query(None, regex=r"^\d{4}-\d{2}-\d{2}$"),
-    end_date: str = Query(None, regex=r"^\d{4}-\d{2}-\d{2}$")
+    start_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    end_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$")
 ):
     try:
         start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
         end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
         technical_data = get_technical_data(start_date, end_date)
-        return technical_data
+        return technical_data[0]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter dados técnicos: {e}")
 
 
-@app.get("/fundamental-data", response_model=List[FundamentalDataResponse])
+@app.get("/fundamental-data", response_model=FundamentalDataResponse)
 def fundamental_data(year: int = None):
     try:
         fundamental_data = get_fundamental_data(year)

@@ -6,7 +6,7 @@ load_dotenv()
 gpt_key = os.environ.get("OPENAI_KEY")
 
 class GPT():
-    def _init_(self, api_key: str):
+    def __init__(self, api_key: str):
         self.client = openai.OpenAI(api_key=api_key)
         self.prompt = """"
         Ola, somos a TARG, empresa que está trabalhando com o mercado de ações!/ 
@@ -47,13 +47,14 @@ class GPT():
 
         return response_content
     
-    def analyze_news_article(news_text: str) -> str:
-         gpt_instance = GPT(gpt_key)
-         analysis = gpt_instance.call_gpt(news_text)
-         return analysis
-
+    def analyze_news_article(news_text: str, title: str) -> str:
+        try:
+            analysis = gpt_instance.call_gpt(gpt_instance.prompt, f"titulo: {title}\ncorpo:{news_text}".strip())
+            return analysis
+        except Exception as e:
+            raise Exception(f"Erro ao chamar o GPT: {e}")
     
-gpt_instance = GPT(gpt_key)
+gpt_instance = GPT(api_key=gpt_key)
 
 resposta = gpt_instance.call_gpt(gpt_instance.prompt, """A Polícia Civil do Rio de Janeiro e o Ministério Público do estado (MPRJ) deflagraram, na manhã desta quinta-feira (21/11), uma operação contra fraudes noBanco do Brasil. Estima-se que o prejuízo ao banco foi de mais de R$ 40 milhões.
 
@@ -82,5 +83,3 @@ AoMetrópoles, o Banco do Brasil informou que esse é um desdobramento da opera�
 ...
 
 Receba notícias do Metrópoles no seuTelegrame fique por dentro de tudo! Basta acessar o canal:https://t.me/metropolesurgente.""")
-
-
