@@ -188,6 +188,51 @@ def scrape_news(url, collection):
     finally:
         driver.quit()
 
+
+
+
+def get_news_by_link(link):
+    """
+    Recupera uma notícia específica do MongoDB com base no link.
+
+    Parâmetros:
+        link (str): O link da notícia a ser recuperada.
+
+    Retorna:
+        dict: Um dicionário contendo 'title', 'content', 'date' e 'analysis'.
+              Retorna None se a notícia não for encontrada.
+    """
+    try:
+        client = MongoClient(MONGO_URI)
+        db = client[DATABASE_NAME]
+        collection = db[COLLECTION_NAME]
+        
+        projection = {
+            'title': 1,
+            'content': 1,
+            'date': 1,
+            'analysis': 1,
+            '_id': 0  
+        }
+        
+        # Busca a notícia pelo link
+        news = collection.find_one({"link": link}, projection)
+        
+        return news
+
+    except errors.ConnectionFailure as e:
+        print(f"Falha na conexão com o MongoDB: {e}")
+        return None
+    except errors.PyMongoError as e:
+        print(f"Erro ao recuperar a notícia: {e}")
+        return None
+
+
+
+
+
+
+
 def main():
     # Obtém a coleção do MongoDB
     collection = get_db_collection()
