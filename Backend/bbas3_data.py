@@ -8,17 +8,32 @@ ticker = "BBAS3.SA"
 start_date = "2010-01-01"
 end_date = datetime.now().strftime("%Y-%m-%d") #data dinamica
 
-# Baixar os dados históricos
-data = yf.download(ticker, start=start_date, end=end_date)
+# Baixa os dados das acoes do periodo definido
+def b_periodo(start:str, end:str, ticker:str='BBAS3.SA'):
+    # baixar dados definidos
+    data = yf.download(ticker, start=start, end=end)
+    data = data[[ 'Open', 'Volume', 'Close', 'Adj Close']]
+    data['RSI'] = calculate_rsi(data)
+    data['MACD'], data['Signal Line'] = calculate_macd(data)
+    data.dropna(inplace=True)
+    
+    return data
 
+# Baixar os dados históricos
+while True:
+    try:
+        data = yf.download(ticker, start=start_date, end=end_date)
+        break
+    except Exception as e:
+        print(f"Erro ao baixar os dados: {e}")
+        
 dividends = yf.Ticker(ticker).dividends
 data['Dividendos'] = dividends.reindex(data.index).fillna(0)
 #Possui os dados diários apenas de: preço de abertura, fechamento, maior  e menor preço do dia, e quantas ações negociadas
 data.columns = [col[0] for col in data.columns]
 data.rename(columns={'Adj Close': 'Adj_Close'}, inplace=True)
-print(data)
 
-def calculate_rsi(data, window=1):
+def calculate_rsi(data, window=14):
     # Calcula a diferença diária nos preços ajustados
     delta = data['Adj_Close'].diff()
 
@@ -61,14 +76,14 @@ def get_last_indicators(data):
         }
     
     # Obter o preço ajustado
-    price = data['Adj_Close'].iloc[-1] if not data['Adj Close'].iloc[-1].empty else None
+    price = data['Adj_Close'].iloc[-1] if data['Adj_Close'].iloc[-1] else None
 
 
     
     # Últimos valores do RSI, MACD e Signal Line
     last_rsi = data['RSI'].iloc[-1] if pd.notnull(data['RSI'].iloc[-1]) else None
     last_macd = data['MACD'].iloc[-1] if pd.notnull(data['MACD'].iloc[-1]) else None
-    last_signal_line = data['Signal Line'].iloc[-1] if pd.notnull(data['Signal Line'].iloc[-1]) else None
+    last_signal_line = data['Signal_Line'].iloc[-1] if pd.notnull(data['Signal_Line'].iloc[-1]) else None
     
     # Data do último registro
     last_date = data.index[-1].strftime('%Y-%m-%d')
@@ -288,8 +303,6 @@ def get_technical_data(start_date=None, end_date=None):
                 raise ValueError("Data de término inválida. Por favor, use 'YYYY-MM-DD'.")
         # Aplicar filtros
         filtered_data = data
-        print(filtered_data)
-        
         if start_date:
             filtered_data = filtered_data[filtered_data.index >= start_date]
             
@@ -324,7 +337,6 @@ def get_fundamental_data(year=None):
 def get_stock_indicators():
     return get_last_indicators(data)
 
-# Teste da função (opcional)
 if __name__ == "__main__":
     try:
         indicadores = get_stock_indicators()

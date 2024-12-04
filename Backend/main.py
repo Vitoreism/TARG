@@ -1,14 +1,17 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from GPTnlp import GPT  # Importando o GPT conforme indicado
 from bbas3_data import get_stock_indicators, get_technical_data, get_fundamental_data  # Importações do backend
+from GPTnlp import GPT  # Importando o GPT conforme indicado
+from ModeloFunc import ModeloPrevisao
 from datetime import datetime
 from typing import List
 import os
 
 OPENAI_KEY = os.getenv('OPENAI_KEY')
 gpt_instance = GPT(OPENAI_KEY)
+modelo_instance = ModeloPrevisao('TARG2.keras')
+
 
 app = FastAPI()
 
@@ -65,6 +68,11 @@ class FundamentalDataResponse(BaseModel):
     PEBIT: float
     ROA: float
 
+class ModeloPrevisaoResponse(BaseModel):
+    X_atual: datetime
+    Y_atual: float
+    X_fut: datetime
+    Y_fut: float
 # Rotas da API
 
 # POST: Analisar notícia usando GPT
@@ -79,6 +87,14 @@ def analyze_news_endpoint(article: NewsArticle):
         return NewsAnalysisResponse(analysis=analysis)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/get-prevision", response_model=ModeloPrevisaoResponse)
+def get_prevision():
+    try:
+        prevision = modelo_instance.prever_futuro()
+        return prevision
+    except Exception as e:
+        print(f"Erro ao gerar previsão: {e}")
 
 # GET: Obter indicadores de ações do Banco do Brasil (BBAS3)
 @app.get("/stock", response_model=StockDataResponse)
