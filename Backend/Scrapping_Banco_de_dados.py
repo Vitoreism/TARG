@@ -63,6 +63,8 @@ def scrape_news(url, collection):
         # Acesse a URL
         print(f"Acessando a página principal: {url}")
         driver.get(url)
+
+        sleep(30)
         
         # Aguarda o carregamento do iframe do anúncio
         try:
@@ -126,7 +128,7 @@ def scrape_news(url, collection):
                 # Verifica se a notícia já está presente no MongoDB com base no 'link'
                 if collection.find_one({"link": link}):
                     print("Notícia já existente no banco de dados. Pulando...")
-                    continue
+                    break
 
                 # Acessa o link da notícia
                 driver.get(link)
