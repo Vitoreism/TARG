@@ -64,7 +64,6 @@ def scrape_news(url, collection):
         print(f"Acessando a página principal: {url}")
         driver.get(url)
 
-        sleep(30)
         
         # Aguarda o carregamento do iframe do anúncio
         try:
