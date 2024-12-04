@@ -4,7 +4,7 @@ import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
-from bbas3_data import b_periodo
+from dados import b_periodo
 from datetime import datetime, timedelta
 
 class ModeloPrevisao:
@@ -96,12 +96,12 @@ class ModeloPrevisao:
 
         return predictions_series
 
-    def prever_futuro(self, future_days=5):
+    def prever_futuro(self, future_days):
         """
         Faz previsões de preços para os próximos 'future_days' dias.
         """
         diaAtual = datetime.now().date()
-        diaPass = diaAtual - timedelta(days=90)
+        diaPass = diaAtual - timedelta(days=120)
         
         ## Colocar para prever a data mais recente
         data, scaled_data = self.baixar_dados(f"{diaPass}", f"{diaAtual}")
@@ -124,6 +124,7 @@ class ModeloPrevisao:
         future_predictions = self.scaler.inverse_transform(future_predictions_full)[:, 2]
 
         future_dates = pd.date_range(start=datetime.now(), periods=future_days, freq='B')
+
         plt.figure(figsize=(14, 7))
         plt.plot(data.index, data['Close'], label='Preço Real (2022)', color='blue')
         plt.plot(future_dates, future_predictions, label='Previsão Futura', color='red', linestyle='dotted')
@@ -133,7 +134,6 @@ class ModeloPrevisao:
         plt.legend()
         plt.show()
         plt.savefig(f'../Previsoes/2:{datetime.now().time()}.png')
-        
-        saida = {"X_atual": data.index, "Y_atual": data['Close'], "X_fut": future_dates, "Y_fut": future_predictions}
-        print(saida)
-        return saida
+
+        dataC = list(data['Close']['BBAS3.SA'])
+        return {"X_atual": data.index, "Y_atual": dataC, "X_fut": future_dates, "Y_fut": future_predictions}
