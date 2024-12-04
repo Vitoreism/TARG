@@ -16,7 +16,7 @@ export default function About() {
         <h2 className="text-3xl text-purple-600 mb-4">Missão</h2>
         <p className="text-lg">
           Nossa missão é tornar as decisões de investimento mais rápidas e informadas, aproveitando ao máximo as 
-          notícias financeiras.
+          notícias sobre o mercado financeiro.
         </p>
       </section>
 
