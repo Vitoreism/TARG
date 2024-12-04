@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, NoSuchElementException
 from bs4 import BeautifulSoup
+import time
 from time import sleep
 
 def scrape_news(url):
@@ -14,20 +15,41 @@ def scrape_news(url):
     chrome_options = Options()
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
-    
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--window-size=1920x1080")
+    # chrome_options.add_argument("--headless")  # Descomente para executar em modo headless
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install(), options=chrome_options))
 
     # Lista para armazenar as notícias coletadas
     news_data = []
 
     try:
         # Acesse a URL
+        print(f"Acessando a página principal: {url}")
         driver.get(url)
+        
+        out_of_page_div = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "OutOfPage"))
+        )
+    
+        iframe = out_of_page_div.find_element(By.TAG_NAME, "iframe")
+        driver.switch_to.frame(iframe) # Entrando no iframe do anuncio
+    
+        try:
+            fechar = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "fechar"))
+            )
+            fechar.click()
+            print("Anúncio fechado com sucesso.")
+            driver.switch_to.default_content() # Volta pro iframe principal
+        except Exception as e:
+            print(f'Não foi possível fechar o anúncio: {e}')
 
         # Aguarda até que os itens de notícia estejam presentes no DOM
         wait = WebDriverWait(driver, 30)  # Aguarda até 30 segundos
         wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'article-card__headline')))
-
+        sleep(30)
         # Procura pelas notícias
         news_items = driver.find_elements(By.CLASS_NAME, 'article-card__headline')
 
@@ -41,50 +63,54 @@ def scrape_news(url):
         news_links = []
         for item in news_items:
             try:
-                title = item.text if item.text else 'No title'
+                title = item.text.strip() if item.text else 'No title'
                 link_element = item.find_element(By.XPATH, './ancestor::a')
-                link = link_element.get_attribute('href') if link_element else 'No link'
-
-                print(f'LINK ELEMENT: {link_element}')
-                print(f'LINK: {link}')
-                news_links.append({'title': title, 'link': link})
+                link = link_element.get_attribute('href').strip() if link_element else 'No link'
+                if link.startswith('http'):
+                    news_links.append({'title': title, 'link': link})
             except (StaleElementReferenceException, NoSuchElementException) as e:
                 print(f"Erro ao coletar título/link: {e}")
                 continue
 
-        # Itera sobre os links coletados
+        print(f"{len(news_links)} links coletados com sucesso.")
+
+        # Processa cada notícia individualmente
         for idx, news in enumerate(news_links, start=1):
             title = news['title']
             link = news['link']
-            print(f"Processando notícia {idx}: {title}")
-
-            if link == 'No link':
-                print("Link inválido, pulando...")
-                continue
+            print(f"\nAcessando notícia {idx}: {title}")
+            print(f"Link: {link}")
 
             try:
-                # Navega para a página da notícia
+                # Acessa o link da notícia
                 driver.get(link)
 
-                # Aguarda até que o conteúdo da notícia esteja presente
+                # Aguarda até que o conteúdo do artigo esteja presente
                 try:
-                    wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'content')))  # Ajuste conforme necessário
+                    wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'im-article')))
                 except TimeoutException:
-                    print("Tempo de espera esgotado para carregar o conteúdo da notícia.")
-                
-                # Coleta o HTML da página da notícia
+                    print(f"Tempo de espera esgotado para carregar a notícia {link}.")
+                    continue
+
+                # Extrai o conteúdo da notícia com BeautifulSoup
                 html = driver.page_source
                 soup = BeautifulSoup(html, 'html.parser')
 
-                # Coletar conteúdo da notícia (ajuste a classe conforme necessário)
-                content_tag = soup.find('div', {'class': 'content'})
-                content = content_tag.get_text(separator='\n').strip() if content_tag else 'No content'
+                # Localiza o <article> com a classe definida
+                article_tag = soup.find('article', class_='im-article clear-fix')
+                if not article_tag:
+                    print(f"Elemento <article> não encontrado na notícia {link}.")
+                    continue
 
-                # Coletar data de publicação (ajuste o seletor conforme necessário)
-                date_tag = soup.find('span', class_='data')
-                date = date_tag.get_text().strip() if date_tag else 'No date'
+                # Coleta os parágrafos do artigo
+                paragraphs = article_tag.find_all('p')
+                content = "\n".join([p.get_text(strip=True) for p in paragraphs]) if paragraphs else "No content"
 
-                # Armazenar os dados
+                # Coleta a data de publicação
+                date_tag = soup.find('time')
+                date = date_tag.get_text(strip=True) if date_tag else "No date"
+
+                # Armazena os dados da notícia
                 news_data.append({
                     'title': title,
                     'link': link,
@@ -92,20 +118,11 @@ def scrape_news(url):
                     'date': date
                 })
 
+                print(f"Notícia '{title}' processada com sucesso.")
+
             except Exception as e:
                 print(f"Erro ao processar a notícia '{title}': {e}")
                 continue
-
-            finally:
-                # Volta para a página inicial para processar a próxima notícia
-                driver.back()
-                sleep(3)
-                # Recria a lista de elementos para evitar referências obsoletas
-                try:
-                    wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'article-card__headline')))
-                except TimeoutException:
-                    print("Tempo de espera esgotado ao retornar à página principal.")
-                    break
 
         return news_data
 
@@ -114,16 +131,16 @@ def scrape_news(url):
         return news_data
 
     finally:
-        # Fechar o driver do Selenium
         driver.quit()
 
-# URL da página que você deseja fazer scraping
-url = 'https://www.infomoney.com.br/tudo-sobre/banco-do-brasil/'  # Substitua pela URL real
+# URL da página principal
+url = 'https://www.infomoney.com.br/tudo-sobre/banco-do-brasil/'  
 
 # Executando a função para pegar as notícias
 news = scrape_news(url)
 
 # Exibindo as notícias coletadas
+print("\nTodas as notícias coletadas:")
 for news_item in news:
     print(f"Título: {news_item['title']}")
     print(f"Link: {news_item['link']}")
