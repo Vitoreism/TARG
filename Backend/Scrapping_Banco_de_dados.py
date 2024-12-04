@@ -1,4 +1,6 @@
 from selenium import webdriver
+from fastapi import HTTPException
+from typing import Dict, List
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -228,7 +230,44 @@ def get_news_by_link(link):
         return None
 
 
-
+def get_title_link_dict() -> Dict[str, List[str]]:
+    """
+    Recupera todas as notícias e retorna um dicionário onde as chaves são os títulos
+    e os valores são listas de links correspondentes.
+    Retorna:
+        dict: Dicionário com 'title' como chave e lista de 'link' como valor.
+    """
+    try:
+        client = MongoClient(MONGO_URI)
+        db = client[DATABASE_NAME]
+        collection = db[COLLECTION_NAME]
+        
+        # Define os campos a serem retornados
+        projection = {
+            'title': 1,
+            'link': 1,
+            '_id': 0
+        }
+        cursor = collection.find({}, projection)
+        
+        title_links_dict: Dict[str, List[str]] = {}
+        for doc in cursor:
+            title = doc.get('title')
+            link = doc.get('link')
+            if title and link:
+                if title in title_links_dict:
+                    title_links_dict[title].append(link)
+                else:
+                    title_links_dict[title] = [link]
+        
+        print(f"Total de {len(title_links_dict)} títulos recuperados com seus links.")
+        return title_links_dict
+    except errors.ConnectionFailure as e:
+        print(f"Falha na conexão com o MongoDB: {e}")
+        raise HTTPException(status_code=500, detail="Falha na conexão com o banco de dados.")
+    except errors.PyMongoError as e:
+        print(f"Erro ao recuperar os documentos: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao recuperar os dados.")
 
 
 

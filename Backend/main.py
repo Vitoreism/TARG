@@ -68,6 +68,14 @@ class FundamentalDataResponse(BaseModel):
     PEBIT: float
     ROA: float
 
+
+class NewsData(BaseModel):
+    title: str
+    content: str
+    date: str #Poderia ser datetime (???)
+    analysis: str
+
+
 class ModeloPrevisaoResponse(BaseModel):
     X_atual: datetime
     Y_atual: float
