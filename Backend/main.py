@@ -84,6 +84,14 @@ class ModeloPrevisaoResponse(BaseModel):
     Y_atual: float
     X_fut: datetime
     Y_fut: float
+
+
+
+class NewsData(BaseModel):
+    title: str
+    content: str
+    date: str #Poderia ser datetime (???)
+    analysis: str
 # Rotas da API
 
 # Endpoint para recuperar o dicionário de títulos e links
