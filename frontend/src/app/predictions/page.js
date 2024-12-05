@@ -59,7 +59,7 @@ export default function PredictionsPage() {
   const rsi = safeNumber(stockData.rsi);
   const macd = safeNumber(stockData.macd);
   const signalLine = safeNumber(stockData.signal_line);
-  const date = stockData.date 
+  const date = stockData.date ? new Date(stockData.date + "T00:00:00").toLocaleDateString('pt-BR') : 'N/A';
 
   return (
     <div className="bg-gray-900 text-white p-6 min-h-screen flex flex-col">
