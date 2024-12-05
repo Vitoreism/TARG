@@ -1,34 +1,57 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import Link from 'next/link';
+import { getNewsLinks, getNewsByLink } from "../api";
 
 export default function NewsPage() {
-  const staticNews = [
-    {
-      title: "Banco do Brasil Anuncia Lucro Recorde no Trimestre",
-      description: "O Banco do Brasil teve um aumento de 12% no lucro no último trimestre, impulsionado pela alta nas taxas de juros e crescimento no crédito.",
-      source: "Fonte: G1",
-      url: "#"
-    },
-    {
-      title: "Bolsa de Valores Brasileira Passa por Alta Volatilidade",
-      description: "O Ibovespa apresentou grande volatilidade nos últimos dias, refletindo as tensões no cenário político e econômico.",
-      source: "Fonte: UOL",
-      url: "#"
-    },
-    {
-      title: "Taxa Selic e Impactos no Mercado de Ações",
-      description: "A decisão do Banco Central de manter a taxa Selic elevada tem gerado incertezas nos investidores da B3.",
-      source: "Fonte: Exame",
-      url: "#"
-    },
-    {
-      title: "Cenário do Agronegócio Brasileiro: Expectativas para 2024",
-      description: "O agronegócio no Brasil segue sendo um pilar importante da economia, com boas expectativas para o ano seguinte.",
-      source: "Fonte: Valor Econômico",
-      url: "#"
-    }
-  ];
+  const [news, setNews] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        // Pega o dicionário de títulos e links
+        const titleLinksDict = await getNewsLinks();
+
+        // titleLinksDict é algo como { "Título X": ["link1", "link2"], ... }
+        // Vamos percorrer cada título, pegar o primeiro link e buscar a notícia completa
+        const fetchedNews = [];
+        for (const [title, links] of Object.entries(titleLinksDict)) {
+          if (links.length > 0) {
+            const link = links[0]; // pega o primeiro link
+            const article = await getNewsByLink(link);
+            
+            // article deve ter title, content, date, etc.
+            // Vamos mapear os campos para o formato desejado no design:
+            fetchedNews.push({
+              title: article.title,
+              description: article.content,
+              source: article.date, // usando a data como "Fonte"
+              url: "#" // não temos uma URL específica, pode ser substituído por um link real se houver
+            });
+          }
+        }
+
+        setNews(fetchedNews);
+        setLoading(false);
+      } catch (err) {
+        setError("Erro ao carregar notícias.");
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center text-black mt-12">Carregando notícias...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
 
   return (
     <div className="bg-gray-900 text-white"> {/* Fundo escuro para toda a página */}
@@ -37,9 +60,9 @@ export default function NewsPage() {
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-3xl font-semibold mb-6 text-center">Últimas Notícias</h2>
 
-          {/* Mapeando as notícias estáticas */}
+          {/* Mapeando as notícias obtidas da API */}
           <div>
-            {staticNews.map((article, index) => (
+            {news.map((article, index) => (
               <div key={index} className="mb-8 bg-gray-800 p-6 rounded-lg shadow-md hover:bg-gray-700 transition-all">
                 <h3 className="text-xl font-semibold">{article.title}</h3>
                 <p className="text-lg mb-4">{article.description}</p>

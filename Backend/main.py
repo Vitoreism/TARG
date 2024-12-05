@@ -77,14 +77,11 @@ class FundamentalDataResponse(BaseModel):
     PEBIT: float
     ROA: float
 
-
-
 class ModeloPrevisaoResponse(BaseModel):
     X_atual: datetime
     Y_atual: float
     X_fut: datetime
     Y_fut: float
-
 
 
 class NewsData(BaseModel):

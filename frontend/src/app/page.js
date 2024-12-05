@@ -13,7 +13,7 @@ export default function HomePage() {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          //minHeight: "92vh", // Garante que a imagem ocupe toda a altura da tela
+          minHeight: "76vh", // Garante que a imagem ocupe toda a altura da tela
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50"></div> {/* Sobreposição escura */}
