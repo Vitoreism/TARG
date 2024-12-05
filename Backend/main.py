@@ -159,7 +159,7 @@ def technical_data(
 ):
     try:
         start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
-        end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+        end_date = datetime.now().strftime('%Y-%m-%d')
         technical_data = get_technical_data(start_date, end_date)
         return technical_data[0]
     except Exception as e:
