@@ -9,27 +9,22 @@ tokenizer = AutoTokenizer.from_pretrained(model_path)
 sentiment_pipeline = pipeline("sentiment-analysis", model=model_path, tokenizer=model_path)
 # Exemplo de novas notícias para inferência
 
-noticias = ['''BC aumenta Selic em 0,25% e juros passam para 10,75% ao ano
-A Confederação Nacional da Indústria criticou a medida
-O Banco Central elevou, nesta quarta-feira, a taxa de juros básicos da economia em 0,25 ponto percentual, passando de 10,5% para 10,75% ao ano. Foi o primeiro aumento da taxa Selic, pelo Copom, o Comitê de Política Monetária, desde agosto de 2022.
+noticias = ['''Banco do Brasil: polícia investiga fraudes e prejuízos de R$ 40 mi
+Agentes da PCRJ e da Gaeco/MPRJ cumprem 16 mandados de busca e apreensão. Entre os alvos estão funcionários e terceirizados
+A Polícia Civil do Rio de Janeiro e o Ministério Público do estado (MPRJ) deflagraram, na manhã desta quinta-feira (21/11), uma operação contra fraudes no Banco do Brasil. Estima-se que o prejuízo ao banco foi de mais de R$ 40 milhões.
 
-Nas reuniões de junho e julho, a decisão foi pela manutenção da taxa em 10,5% ao ano.
+Entre os alvos da Operação Chave Mestra estão funcionários e terceirizados investigados por participação em organização criminosa e invasão de dispositivo de informática.
 
-Entre as justificativas para medida, tomada por unanimidade pelos diretores do Banco Central, estão as estimativas de aumento dos preços ao consumidor e pressões no mercado de trabalho.
+Segundo o MPRJ, as investigações tiveram início a partir de informações apuradas pela Unidade de Segurança Institucional do Banco do Brasil e revelaram que o grupo utiliza dispositivos eletrônicos como modens e roteadores clandestinos para acessar sistemas internos de agências bancárias e obter dados sigilosos de clientes, manipulando essas informações para cometer fraudes financeiras.
 
-Em agosto, a inflação medida pelo IPCA ficou negativa em 0,02%. O índice de desemprego analisado pelo IBGE foi de 6,8% em julho, o menor desde 2014.
+A organização atuava desde dezembro de 2023 e, em apenas oito meses, conseguiu invadir o sistema de segurança de agências do Banco do Brasil localizadas no Recreio dos Bandeirantes, Barra da Tijuca, Vila Isabel, Centro do Rio, além de unidades localizadas nos municípios de Niterói.
+Ainda de acordo com o Ministério Público, o grupo criminoso atuava com divisão de tarefas específicas entre aliciadores, aliciados, instaladores, operadores financeiros e líderes.
 
-O aumento da taxa Selic ajuda a conter a inflação. Isso porque juros mais altos encarecem o crédito e desestimulam a produção e o consumo.
+Ao todo são cumpridos 16 mandados de busca e apreensão contra 11 investigados em São Gonçalo, Taquara, Barra da Tijuca, Praça Seca, Magé, Recreio dos Bandeirantes, Pechincha, Cidade de Deus, Magalhães Bastos e Irajá. Cerca de 25 equipes policiais da Delegacia de Roubos e Furtos (DRF) e do Grupo de Atuação Especial de Combate ao Crime Organizado (Gaeco/MPRJ) participam da operação. O objetivo é apreender dispositivos eletrônicos ilegais, coletar provas e identificar outros integrantes do esquema criminoso.
 
-Logo após o anúncio do Copom, a Confederação Nacional da Indústria afirmou que aumentar os juros é medida excessiva para controlar a inflação e prejudicial ao crescimento econômico.
-''', '''
-Banco do Brasil (BBAS3) atualiza valor de dividendos e JCP
-Proventos foram atualizados pela taxa Selic até a data-base de 21 de agosto
-O Banco do Brasil (BBAS3) informou que o valor dos dividendos referente ao 2º trimestre de 2024 passou de R$ 0,15186078881 para R$ 0,15414348799.
+Ao Metrópoles, o Banco do Brasil informou que esse é um desdobramento da operação que se iniciou em julho deste ano, e que está em sua quarta fase. As investigações iniciaram a partir de apuração interna, que detectou irregularidades, as quais foram comunicadas às autoridades policiais.
 
-Já o valor aprovado em juros sobre capital próprio (JCP) saiu de R$ 0,31448148860 R$ 0,31920862483.
-
-O aumento nos proventos foi motivado pela atualização da taxa Selic até a data-base de ontem (21).''']
+“O BB possui processos estabelecidos para monitoramento e apuração de fraudes contra a instituição, adotou todas as providências no seu âmbito de atuação e colabora com as investigações do caso”, afirma a instituição em nota.''']
 
 input=tokenizer(noticias, return_tensors="pt", truncation=True, padding=True, max_length=512)
 input=[tokenizer.decode(input['input_ids'][x], skip_special_tokens=True) for x in range(len(noticias))]

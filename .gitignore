@@ -1,5 +1,7 @@
-.venv
+*env
 *.save
 results
 wandb
 sentiment-analysis-model
+Previsoes
+__pycache__

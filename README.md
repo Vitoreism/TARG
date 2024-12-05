@@ -3,7 +3,8 @@ Repositório do grupo TARG para o hackaton do trilha
 
 ## Planos
 - [x] Treinar modelo para análise sentimental das ações
-   - usando BERT do Transformers
+   - ~~usando BERT~~
+   - agora usando GPT
 - [ ] Treinar modelo para previsão das ações
    - [ ] Uso de séries temporais
    - [ ] Uso da análise sentimental das notícias

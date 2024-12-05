@@ -69,7 +69,7 @@ training_args = TrainingArguments(
     load_best_model_at_end=True,      
     lr_scheduler_type="cosine",       
     metric_for_best_model="eval_loss",
-    gradient_accumulation_steps=2
+    gradient_accumulation_steps=2,
     report_to=["wandb"]
 )
 
@@ -123,7 +123,14 @@ sentiment_pipeline = pipeline("sentiment-analysis", model='./sentiment-analysis-
 # Exemplo de novas notícias para inferência
 noticias_novas = [
     "A empresa X apresentou uma grande alta nos lucros do último trimestre.",
-    "Problemas regulatórios podem comprometer os planos de expansão da empresa Y."
+    "Problemas regulatórios podem comprometer os planos de expansão da empresa Y.",
+    '''Ainda de acordo com o Ministério Público, o grupo criminoso atuava com divisão de tarefas específicas entre aliciadores, aliciados, instaladores, operadores financeiros e líderes.
+
+Ao todo são cumpridos 16 mandados de busca e apreensão contra 11 investigados em São Gonçalo, Taquara, Barra da Tijuca, Praça Seca, Magé, Recreio dos Bandeirantes, Pechincha, Cidade de Deus, Magalhães Bastos e Irajá. Cerca de 25 equipes policiais da Delegacia de Roubos e Furtos (DRF) e do Grupo de Atuação Especial de Combate ao Crime Organizado (Gaeco/MPRJ) participam da operação. O objetivo é apreender dispositivos eletrônicos ilegais, coletar provas e identificar outros integrantes do esquema criminoso.
+
+Ao Metrópoles, o Banco do Brasil informou que esse é um desdobramento da operação que se iniciou em julho deste ano, e que está em sua quarta fase. As investigações iniciaram a partir de apuração interna, que detectou irregularidades, as quais foram comunicadas às autoridades policiais.
+
+“O BB possui processos estabelecidos para monitoramento e apuração de fraudes contra a instituição, adotou todas as providências no seu âmbito de atuação e colabora com as investigações do caso”, afirma a instituição em nota.'''
 ]
 
 # Obter as previsões de sentimento para cada notícia
