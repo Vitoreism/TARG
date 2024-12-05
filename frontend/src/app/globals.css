@@ -8,7 +8,7 @@ body {
   padding: 0;
 }
 
-/* Personalizando a Barra de Rolagem */
+/* Barra de Rolagem */
 ::-webkit-scrollbar {
   width: 12px; /* Largura da barra de rolagem */
 }
