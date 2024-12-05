@@ -151,15 +151,14 @@ def get_stock_data():
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter indicadores: {e}")
-
+    
 @app.get("/technical-data", response_model=TechnicalDataResponse)
 def technical_data(
-    start_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
-    end_date: str = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$")
+    start_date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$")  # Tornamos o start_date obrigatório
 ):
     try:
-        start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
-        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = start_date  # Fazendo o end_date ser igual ao start_date
         technical_data = get_technical_data(start_date, end_date)
         return technical_data[0]
     except Exception as e:
