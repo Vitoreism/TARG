@@ -5,8 +5,10 @@ from bbas3_data import get_stock_indicators, get_technical_data, get_fundamental
 from GPTnlp import GPT  # Importando o GPT conforme indicado
 from ModeloFunc import ModeloPrevisao
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 import os
+from pymongo import MongoClient
+from Scrapping_Banco_de_dados import get_news_by_link, get_title_link_dict
 
 OPENAI_KEY = os.getenv('OPENAI_KEY')
 gpt_instance = GPT(OPENAI_KEY)
@@ -14,6 +16,13 @@ modelo_instance = ModeloPrevisao('TARG2.keras')
 
 
 app = FastAPI()
+
+
+# Configuração do MongoDB
+client = MongoClient("mongodb://localhost:27017/")
+db = client["noticias_db"]  # Nome do banco de dados
+news_collection = db["noticias"]  # Nome da coleção de notícias
+
 
 # Configuração do CORS
 origins = [
@@ -69,12 +78,6 @@ class FundamentalDataResponse(BaseModel):
     ROA: float
 
 
-class NewsData(BaseModel):
-    title: str
-    content: str
-    date: str #Poderia ser datetime (???)
-    analysis: str
-
 
 class ModeloPrevisaoResponse(BaseModel):
     X_atual: datetime
@@ -82,6 +85,31 @@ class ModeloPrevisaoResponse(BaseModel):
     X_fut: datetime
     Y_fut: float
 # Rotas da API
+
+# Endpoint para recuperar o dicionário de títulos e links
+@app.get("/news/links", response_model=Dict[str, List[str]])
+def get_all_news_links():
+    """
+    Recupera todos os títulos de notícias e seus respectivos links.
+    """
+    try:
+        title_links_dict = get_title_link_dict()
+        return title_links_dict
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
+# Endpoint para recuperar uma notícia específica pelo link
+@app.get("/news/{link}")
+async def get_news(link: str):
+    """
+    Recupera uma notícia específica a partir de seu link.
+    """
+    news = get_news_by_link(link)  # Chama a função para recuperar a notícia pelo link
+    if 'error' in news:
+        raise HTTPException(status_code=404, detail=news['error'])
+    return news
+
 
 # POST: Analisar notícia usando GPT
 @app.post("/analyze-news", response_model=NewsAnalysisResponse)

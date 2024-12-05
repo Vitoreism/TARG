@@ -17,6 +17,8 @@ import time
 from time import sleep
 import pymongo
 from pymongo import MongoClient, errors
+from urllib.parse import unquote
+
 
 # Configurações do MongoDB
 MONGO_URI = "mongodb://localhost:27017/"  # Substitua pela sua string de conexão, se estiver usando o Atlas
@@ -193,7 +195,7 @@ def scrape_news(url, collection):
 
 
 
-def get_news_by_link(link):
+def get_news_by_link(link: str):
     """
     Recupera uma notícia específica do MongoDB com base no link.
 
@@ -204,6 +206,9 @@ def get_news_by_link(link):
         dict: Um dicionário contendo 'title', 'content', 'date' e 'analysis'.
               Retorna None se a notícia não for encontrada.
     """
+    if not link:
+        return {"error": "Link não fornecido."}
+
     try:
         client = MongoClient(MONGO_URI)
         db = client[DATABASE_NAME]
@@ -214,20 +219,24 @@ def get_news_by_link(link):
             'content': 1,
             'date': 1,
             'analysis': 1,
-            '_id': 0  
+            '_id': 1  
         }
         
-        # Busca a notícia pelo link
+        # Busca a notícia pelo link exato
         news = collection.find_one({"link": link}, projection)
         
-        return news
+        if news:
+            return news
+        else:
+            return {"error": "Notícia não encontrada."}
 
     except errors.ConnectionFailure as e:
         print(f"Falha na conexão com o MongoDB: {e}")
-        return None
+        return {"error": f"Falha na conexão com o MongoDB: {e}"}
     except errors.PyMongoError as e:
         print(f"Erro ao recuperar a notícia: {e}")
-        return None
+        return {"error": f"Erro ao recuperar a notícia: {e}"}
+
 
 
 def get_title_link_dict() -> Dict[str, List[str]]:
@@ -246,7 +255,7 @@ def get_title_link_dict() -> Dict[str, List[str]]:
         projection = {
             'title': 1,
             'link': 1,
-            '_id': 0
+            '_id': 1
         }
         cursor = collection.find({}, projection)
         
