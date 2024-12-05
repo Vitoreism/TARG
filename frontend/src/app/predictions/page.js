@@ -7,8 +7,8 @@ export default function PredictionsPage() {
   const [stockData, setStockData] = useState(null);
   const [historicalData, setHistoricalData] = useState(null);
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(""); // Remover startDate default, vai ser obrigatório
+  const [endDate] = useState(""); // Não é mais necessário
 
   useEffect(() => {
     const fetchStockData = async () => {
@@ -27,19 +27,19 @@ export default function PredictionsPage() {
   const safeNumber = (val) => (typeof val === 'number' && !isNaN(val)) ? val.toFixed(2) : 'N/A';
 
   const fetchTechnicalDataByPeriod = async () => {
-    if (!startDate || !endDate) {
-      setError("Por favor, selecione datas válidas.");
+    if (!startDate) {
+      setError("Por favor, selecione uma data válida.");
       return;
     }
 
     try {
-      const data = await getTechnicalData(startDate, endDate);
+      const data = await getTechnicalData(startDate);  // Passa apenas startDate
       if (data) {
         setHistoricalData(data);
         setError(null);
       } else {
         setHistoricalData(null);
-        setError("Nenhum dado encontrado para o período selecionado.");
+        setError("Nenhum dado encontrado para a data selecionada.");
       }
     } catch (err) {
       setHistoricalData(null);
@@ -73,22 +73,13 @@ export default function PredictionsPage() {
 
       {/* Seção de Filtro de Datas */}
       <section className="bg-gray-800 py-8 px-6 rounded-lg mb-8">
-        <h2 className="text-3xl text-purple-600 mb-4">Filtrar Dados por Período</h2>
+        <h2 className="text-3xl text-purple-600 mb-4">Filtrar Dados por Data</h2>
         <div className="mb-4">
-          <label className="block mb-2">Data Inicial:</label>
+          <label className="block mb-2">Data:</label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="p-2 bg-gray-700 text-white rounded-lg"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Data Final:</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
             className="p-2 bg-gray-700 text-white rounded-lg"
           />
         </div>
@@ -103,7 +94,7 @@ export default function PredictionsPage() {
       {/* Seção com Dados do Período Selecionado (se disponíveis) */}
       {historicalData && (
         <section className="bg-gray-800 py-8 px-6 rounded-lg mb-8">
-          <h2 className="text-3xl text-purple-600 mb-4">Dados do Período Selecionado</h2>
+          <h2 className="text-3xl text-purple-600 mb-4">Dados para o Dia Selecionado</h2>
           <div className="text-lg">
             {/* Campos do TechnicalDataResponse */}
             <p>Data: <span className="font-semibold">{historicalData.Date ? new Date(historicalData.Date).toLocaleDateString('pt-BR') : 'N/A'}</span></p>
@@ -135,4 +126,3 @@ export default function PredictionsPage() {
     </div>
   );
 }
-

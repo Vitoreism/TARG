@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${ibmPlexSans.className}`}>
         <nav className="bg-gray-800 fixed top-0 w-full shadow-md z-50">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center h-20 ml-8">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center h-20">
             <Link href="/">
               <Image
                 src="/logo-removebg.png"
@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
                 className="max-h-28 w-auto"
               />
             </Link>
-            <ul className="flex space-x-6 mr-12">
+            <ul className="flex space-x-6">
               <li>
                 <Link href="/" className="text-gray-300 hover:text-white">
                   Início
