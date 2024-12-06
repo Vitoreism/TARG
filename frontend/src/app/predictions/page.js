@@ -7,8 +7,10 @@ export default function PredictionsPage() {
   const [stockData, setStockData] = useState(null);
   const [historicalData, setHistoricalData] = useState(null);
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState(""); // Remover startDate default, vai ser obrigatório
-  const [endDate] = useState(""); // Não é mais necessário
+  const [startDate, setStartDate] = useState(""); 
+
+  const today = new Date().toISOString().split('T')[0]; // Data atual no formato YYYY-MM-DD
+  const minDate = "2010-01-01"; // Data mínima a partir de 2010
 
   useEffect(() => {
     const fetchStockData = async () => {
@@ -71,6 +73,32 @@ export default function PredictionsPage() {
         </p>
       </section>
 
+      {/* Seção de Indicadores Atuais */}
+      <section className="bg-gray-800 py-8 px-6 rounded-lg mb-8">
+        <h2 className="text-3xl text-purple-600 mb-4 flex justify-between items-center">
+          Indicadores do Dia 
+          <span className="text-lg font-semibold text-white">{date}</span>
+        </h2>
+        <div className="flex space-x-6 justify-between text-lg">
+          <div className="flex-1 text-center">
+            <h3 className="font-semibold text-lg mb-2">Preço Atual</h3>
+            <p>{price}</p>
+          </div>
+          <div className="flex-1 text-center">
+            <h3 className="font-semibold text-lg mb-2">RSI</h3>
+            <p>{rsi}</p>
+          </div>
+          <div className="flex-1 text-center">
+            <h3 className="font-semibold text-lg mb-2">MACD</h3>
+            <p>{macd}</p>
+          </div>
+          <div className="flex-1 text-center">
+            <h3 className="font-semibold text-lg mb-2">Signal Line</h3>
+            <p>{signalLine}</p>
+          </div>
+        </div>
+      </section>
+
       {/* Seção de Filtro de Datas */}
       <section className="bg-gray-800 py-8 px-6 rounded-lg mb-8">
         <h2 className="text-3xl text-purple-600 mb-4">Filtrar Dados por Data</h2>
@@ -81,6 +109,8 @@ export default function PredictionsPage() {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="p-2 bg-gray-700 text-white rounded-lg"
+            min={minDate}
+            max={today} // Limita a data até o dia atual
           />
         </div>
         <button
@@ -95,34 +125,55 @@ export default function PredictionsPage() {
       {historicalData && (
         <section className="bg-gray-800 py-8 px-6 rounded-lg mb-8">
           <h2 className="text-3xl text-purple-600 mb-4">Dados para o Dia Selecionado</h2>
-          <div className="text-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Campos do TechnicalDataResponse */}
-            <p>Data: <span className="font-semibold">{historicalData.Date ? new Date(historicalData.Date).toLocaleDateString('pt-BR') : 'N/A'}</span></p>
-            <p>Adj_Close: <span className="font-semibold">{safeNumber(historicalData.Adj_Close)}</span></p>
-            <p>Close: <span className="font-semibold">{safeNumber(historicalData.Close)}</span></p>
-            <p>High: <span className="font-semibold">{safeNumber(historicalData.High)}</span></p>
-            <p>Low: <span className="font-semibold">{safeNumber(historicalData.Low)}</span></p>
-            <p>Open: <span className="font-semibold">{safeNumber(historicalData.Open)}</span></p>
-            <p>Volume: <span className="font-semibold">{typeof historicalData.Volume === 'number' ? historicalData.Volume : 'N/A'}</span></p>
-            <p>Dividendos: <span className="font-semibold">{safeNumber(historicalData.Dividendos)}</span></p>
-            <p>RSI: <span className="font-semibold">{safeNumber(historicalData.RSI)}</span></p>
-            <p>MACD: <span className="font-semibold">{safeNumber(historicalData.MACD)}</span></p>
-            <p>Signal Line: <span className="font-semibold">{safeNumber(historicalData.Signal_Line)}</span></p>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Data</p>
+              <p>{historicalData.Date ? new Date(historicalData.Date).toLocaleDateString('pt-BR') : 'N/A'}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Adjusted Close</p>
+              <p>{safeNumber(historicalData.Adj_Close)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Close</p>
+              <p>{safeNumber(historicalData.Close)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">High</p>
+              <p>{safeNumber(historicalData.High)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Low</p>
+              <p>{safeNumber(historicalData.Low)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Open</p>
+              <p>{safeNumber(historicalData.Open)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Volume</p>
+              <p>{typeof historicalData.Volume === 'number' ? historicalData.Volume : 'N/A'}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Dividendos</p>
+              <p>{safeNumber(historicalData.Dividendos)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">RSI</p>
+              <p>{safeNumber(historicalData.RSI)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">MACD</p>
+              <p>{safeNumber(historicalData.MACD)}</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg shadow-lg">
+              <p className="text-xl font-semibold">Signal Line</p>
+              <p>{safeNumber(historicalData.Signal_Line)}</p>
+            </div>
           </div>
         </section>
       )}
-
-      {/* Seção de Indicadores Atuais da Ação BBAS3 */}
-      <section className="bg-gray-800 py-8 px-6 rounded-lg">
-        <h2 className="text-3xl text-purple-600 mb-4">Indicadores Atuais da Ação BBAS3</h2>
-        <div className="text-lg">
-          <p>Preço Atual: <span className="font-semibold">{price}</span></p>
-          <p>RSI: <span className="font-semibold">{rsi}</span></p>
-          <p>MACD: <span className="font-semibold">{macd}</span></p>
-          <p>Signal Line: <span className="font-semibold">{signalLine}</span></p>
-          <p>Data de Atualização: <span className="font-semibold">{date}</span></p>
-        </div>
-      </section>
     </div>
   );
 }

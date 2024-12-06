@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
               </li>
               <li>
                 <Link href="/predictions" className="text-gray-300 hover:text-white">
-                  Previsões
+                  Indicadores
                 </Link>
               </li>
               <li>
