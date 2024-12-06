@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from 'next/link';
-import { getNewsLinks, getNewsByLink } from "../api";
+import { getNewsLinks, getNewsById } from "../api";
 
 export default function NewsPage() {
   const [news, setNews] = useState([]);
@@ -12,26 +12,23 @@ export default function NewsPage() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        // Pega o dicionário de títulos e links
-        const titleLinksDict = await getNewsLinks();
+        // Pega o dicionário de _id e títulos
+        const idTitleDict = await getNewsLinks();
 
-        // titleLinksDict é algo como { "Título X": ["link1", "link2"], ... }
-        // Vamos percorrer cada título, pegar o primeiro link e buscar a notícia completa
+        // idTitleDict é algo como { "id1": "Título X", ... }
+        // Vamos percorrer cada id e buscar a notícia completa
         const fetchedNews = [];
-        for (const [title, links] of Object.entries(titleLinksDict)) {
-          if (links.length > 0) {
-            const link = links[0]; // pega o primeiro link
-            const article = await getNewsByLink(link);
-            
-            // article deve ter title, content, date, etc.
-            // Vamos mapear os campos para o formato desejado no design:
-            fetchedNews.push({
-              title: article.title,
-              description: article.content,
-              source: article.date, // usando a data como "Fonte"
-              url: "#" // não temos uma URL específica, pode ser substituído por um link real se houver
-            });
-          }
+        for (const [newsId, title] of Object.entries(idTitleDict)) {
+          const article = await getNewsById(newsId);
+          
+          // article deve ter title, content, date, etc.
+          // Vamos mapear os campos para o formato desejado no design:
+          fetchedNews.push({
+            title: article.title,
+            description: article.content,
+            source: article.date, // usando a data como "Fonte"
+            url: `/news/${newsId}` // link para a página da notícia
+          });
         }
 
         setNews(fetchedNews);

@@ -2,23 +2,23 @@ import axios from "axios";
 
 const baseURL = "http://localhost:8000"; // Ajuste se necessário
 
-// Função para obter links de notícias (dicionário de títulos e links)
+// Função para obter o dicionário de _id e títulos
 export const getNewsLinks = async () => {
   try {
     const response = await axios.get(`${baseURL}/news/links`);
-    return response.data;
+    return response.data; // Retorna algo como { "id1": "Título X", ... }
   } catch (error) {
     throw new Error("Erro ao obter links de notícias");
   }
 };
 
-// Função para obter uma notícia específica pelo link
-export const getNewsByLink = async (link) => {
+// Função para obter uma notícia específica pelo _id
+export const getNewsById = async (newsId) => {
   try {
-    const response = await axios.get(`${baseURL}/news/${encodeURIComponent(link)}`);
-    return response.data;
+    const response = await axios.get(`${baseURL}/news/${newsId}`);
+    return response.data; // Retorna a notícia com title, content, date, etc.
   } catch (error) {
-    throw new Error("Erro ao obter notícia pelo link");
+    throw new Error("Erro ao obter notícia pelo ID");
   }
 };
 
