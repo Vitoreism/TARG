@@ -19,25 +19,46 @@ export default function HomePage() {
     // Função para buscar os dados da API
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/stock'); // Supondo que sua API esteja rodando no localhost na porta 8000
+        const response = await fetch('http://localhost:8080/get-prevision');
         const data = await response.json();
 
-        // Formatação dos dados para o gráfico
-        const labels = [data.date]; // Usando a data como label (você pode melhorar isso)
-        const values = [data.price]; // Aqui pegamos o preço, mas você pode adicionar mais dados, como RSI ou MACD
+        // Verifique se os dados X_atual, Y_atual, X_fut e Y_fut existem
+        if (data.X_atual && data.Y_atual && data.X_fut && data.Y_fut) {
+          // Converte as datas para um formato legível
+          const labelsAtuais = data.X_atual.map((dateStr) => new Date(dateStr).toLocaleDateString());
+          const valuesAtuais = data.Y_atual;
 
-        setChartData({
-          labels: labels,
-          datasets: [
-            {
-              label: 'Preço da Ação',
-              data: values,
-              borderColor: 'rgba(75, 192, 192, 1)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              fill: true,
-            },
-          ],
-        });
+          const labelsFuturos = data.X_fut.map((dateStr) => new Date(dateStr).toLocaleDateString());
+          const valuesFuturos = data.Y_fut;
+
+          // Organiza os dados para o gráfico
+          setChartData({
+            labels: [...labelsAtuais, ...labelsFuturos], // Concatenando as labels de 'X_atual' e 'X_fut'
+            datasets: [
+              {
+                label: 'Preço Histórico da Ação',
+                data: valuesAtuais,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                borderWidth: 2,
+              },
+              {
+                label: 'Preço Futuro da Ação',
+                data: [...new Array(valuesAtuais.length).fill(null), ...valuesFuturos], // Preenche com 'null' para os dados históricos
+                borderColor: 'rgba(255, 99, 132, 1)', // Cor diferente para destacar
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Transparente
+                fill: false, // Não preencher a área abaixo da linha
+                borderWidth: 2,
+                borderDash: [5, 5], // Linhas tracejadas para destacar que são previsões
+                pointRadius: 5, // Destacar os pontos futuros
+              },
+            ],
+          });
+        } else {
+          setError('Dados X_atual, Y_atual, X_fut e Y_fut não encontrados.');
+        }
+
         setLoading(false);
       } catch (error) {
         console.error('Erro ao buscar dados da API:', error);
@@ -52,7 +73,7 @@ export default function HomePage() {
   if (loading) {
     return <div className="mt-48">Carregando gráfico...</div>;
   }
-  
+
   if (error) {
     return <div>{error}</div>;
   }

@@ -80,10 +80,10 @@ class FundamentalDataResponse(BaseModel):
     ROA: float
 
 class ModeloPrevisaoResponse(BaseModel):
-    X_atual: datetime
-    Y_atual: float
-    X_fut: datetime
-    Y_fut: float
+    X_atual: list
+    Y_atual: list
+    X_fut: list
+    Y_fut: list
 
 
 class NewsData(BaseModel):
@@ -138,7 +138,7 @@ def analyze_news_endpoint(article: NewsArticle):
 @app.get("/get-prevision", response_model=ModeloPrevisaoResponse)
 def get_prevision():
     try:
-        prevision = modelo_instance.prever_futuro()
+        prevision = modelo_instance.prever_futuro(5)
         return prevision
     except Exception as e:
         print(f"Erro ao gerar previsão: {e}")

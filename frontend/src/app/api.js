@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:8000"; // Ajuste se necessário
+const baseURL = "http://localhost:8080"; // Ajuste se necessário
 
 // Função para obter o dicionário de _id e títulos
 export const getNewsLinks = async () => {

@@ -125,15 +125,5 @@ class ModeloPrevisao:
 
         future_dates = pd.date_range(start=datetime.now(), periods=future_days, freq='B')
 
-        plt.figure(figsize=(14, 7))
-        plt.plot(data.index, data['Close'], label='Preço Real (2022)', color='blue')
-        plt.plot(future_dates, future_predictions, label='Previsão Futura', color='red', linestyle='dotted')
-        plt.title(f"Previsão para os próximos {future_days} dias")
-        plt.xlabel('Data')
-        plt.ylabel('Preço de Fechamento')
-        plt.legend()
-        plt.show()
-        plt.savefig(f'../Previsoes/2:{datetime.now().time()}.png')
-
         dataC = list(data['Close']['BBAS3.SA'])
         return {"X_atual": data.index, "Y_atual": dataC, "X_fut": future_dates, "Y_fut": future_predictions}
