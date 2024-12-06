@@ -20,7 +20,6 @@ export default function NewsPage() {
         const fetchedNews = [];
         for (const [newsId, title] of Object.entries(idTitleDict)) {
           const article = await getNewsById(newsId);
-        
 
           // article deve ter title, content, date, etc.
           // Vamos mapear os campos para o formato desejado no design:
@@ -44,6 +43,12 @@ export default function NewsPage() {
     fetchNews();
   }, []);
 
+  // Função para truncar o conteúdo da notícia
+  const truncateText = (text, maxLength) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
+
   if (loading) {
     return <div className="text-center text-black mt-12">Carregando notícias...</div>;
   }
@@ -64,7 +69,8 @@ export default function NewsPage() {
             {news.map((article, index) => (
               <div key={index} className="mb-8 bg-gray-800 p-6 rounded-lg shadow-md hover:bg-gray-700 transition-all">
                 <h3 className="text-xl font-semibold">{article.title}</h3>
-                <p className="text-lg mb-4">{article.description}</p> {/* Descrição da notícia */}
+                <p className="text-lg mb-4">{truncateText(article.description, 200)}</p> {/* Descrição truncada */}
+
                 <p className="text-sm text-gray-400">Fonte: {article.source}</p>
 
                 {/* Exibe a análise abaixo do título */}
