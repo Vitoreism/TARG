@@ -195,19 +195,19 @@ def scrape_news(url, collection):
 
 
 
-def get_news_by_link(link: str):
+def get_news_by_title(title: str):
     """
-    Recupera uma notícia específica do MongoDB com base no link.
+    Recupera uma notícia específica do MongoDB com base no título.
 
     Parâmetros:
-        link (str): O link da notícia a ser recuperada.
+        title (str): O título da notícia a ser recuperada.
 
     Retorna:
         dict: Um dicionário contendo 'title', 'content', 'date' e 'analysis'.
-              Retorna None se a notícia não for encontrada.
+              Retorna um dicionário de erro se a notícia não for encontrada.
     """
-    if not link:
-        return {"error": "Link não fornecido."}
+    if not title:
+        return {"error": "Título não fornecido."}
 
     try:
         client = MongoClient(MONGO_URI)
@@ -219,11 +219,11 @@ def get_news_by_link(link: str):
             'content': 1,
             'date': 1,
             'analysis': 1,
-            '_id': 1  
+            '_id': 0  # Não precisa do '_id' no retorno
         }
         
-        # Busca a notícia pelo link exato
-        news = collection.find_one({"link": link}, projection)
+        # Busca a notícia pelo título exato
+        news = collection.find_one({"title": title}, projection)
         
         if news:
             return news
@@ -239,38 +239,41 @@ def get_news_by_link(link: str):
 
 
 
-def get_title_link_dict() -> Dict[str, List[str]]:
+def get_titles_dict() -> Dict[str, List[str]]:
     """
     Recupera todas as notícias e retorna um dicionário onde as chaves são os títulos
     e os valores são listas de links correspondentes.
+    
     Retorna:
-        dict: Dicionário com 'title' como chave e lista de 'link' como valor.
+        dict: Dicionário com 'title' como chave e lista de links como valor.
     """
     try:
         client = MongoClient(MONGO_URI)
         db = client[DATABASE_NAME]
         collection = db[COLLECTION_NAME]
         
-        # Define os campos a serem retornados
+        # Define os campos a serem retornados (título e link)
         projection = {
             'title': 1,
-            'link': 1,
-            '_id': 1
+            'link': 1,  # Presume-se que as notícias tenham um campo 'link'
+            '_id': 0  # Não precisamos do _id
         }
+        
         cursor = collection.find({}, projection)
         
-        title_links_dict: Dict[str, List[str]] = {}
+        titles_dict: Dict[str, List[str]] = {}
         for doc in cursor:
             title = doc.get('title')
-            link = doc.get('link')
+            link = doc.get('link')  # Presume-se que cada notícia tenha um campo 'link'
             if title and link:
-                if title in title_links_dict:
-                    title_links_dict[title].append(link)
+                if title in titles_dict:
+                    titles_dict[title].append(link)
                 else:
-                    title_links_dict[title] = [link]
+                    titles_dict[title] = [link]
         
-        print(f"Total de {len(title_links_dict)} títulos recuperados com seus links.")
-        return title_links_dict
+        print(f"Total de {len(titles_dict)} títulos recuperados.")
+        return titles_dict
+        
     except errors.ConnectionFailure as e:
         print(f"Falha na conexão com o MongoDB: {e}")
         raise HTTPException(status_code=500, detail="Falha na conexão com o banco de dados.")

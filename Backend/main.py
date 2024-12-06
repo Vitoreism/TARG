@@ -8,7 +8,9 @@ from datetime import datetime
 from typing import List, Dict
 import os
 from pymongo import MongoClient
-from Scrapping_Banco_de_dados import get_news_by_link, get_title_link_dict
+from Scrapping_Banco_de_dados import get_news_by_title, get_titles_dict
+from urllib.parse import unquote
+
 
 OPENAI_KEY = os.getenv('OPENAI_KEY')
 gpt_instance = GPT(OPENAI_KEY)
@@ -93,27 +95,38 @@ class NewsData(BaseModel):
 
 # Endpoint para recuperar o dicionário de títulos e links
 @app.get("/news/links", response_model=Dict[str, List[str]])
-def get_all_news_links():
+def get_all_news_titles():
     """
     Recupera todos os títulos de notícias e seus respectivos links.
     """
     try:
-        title_links_dict = get_title_link_dict()
+        title_links_dict = get_titles_dict()
         return title_links_dict
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
     
-# Endpoint para recuperar uma notícia específica pelo link
-@app.get("/news/{link}")
-async def get_news(link: str):
+from urllib.parse import unquote
+
+@app.get("/news/{title}")
+async def get_news(title: str):
     """
-    Recupera uma notícia específica a partir de seu link.
+    Recupera uma notícia específica a partir de seu título.
     """
-    news = get_news_by_link(link)  # Chama a função para recuperar a notícia pelo link
-    if 'error' in news:
-        raise HTTPException(status_code=404, detail=news['error'])
+    # Decodifica o título codificado na URL (caso esteja codificado)
+    decoded_title = unquote(title)  # Decodifica a URL do título
+
+    print(f"Decoded title: {decoded_title}")  # Verifique o título após a decodificação
+
+    # Chama a função de recuperação da notícia com base no título
+    news = get_news_by_title(decoded_title)
+    
+    if "error" in news:
+        raise HTTPException(status_code=404, detail=news["error"])
+    
     return news
+
+
 
 
 # POST: Analisar notícia usando GPT
