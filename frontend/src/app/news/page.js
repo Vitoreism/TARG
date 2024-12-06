@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from 'next/link';
-import { getNewsLinks, getNewsById } from "../api";
+import { getNewsLinks, getNewsById, analyzeNews } from "../api";
 
 export default function NewsPage() {
   const [news, setNews] = useState([]);
@@ -21,12 +21,16 @@ export default function NewsPage() {
         for (const [newsId, title] of Object.entries(idTitleDict)) {
           const article = await getNewsById(newsId);
           
+          // Solicitar análise do GPT
+          const analysisResponse = await analyzeNews(article.title, article.content);
+
           // article deve ter title, content, date, etc.
           // Vamos mapear os campos para o formato desejado no design:
           fetchedNews.push({
             title: article.title,
             description: article.content,
             source: article.date, // usando a data como "Fonte"
+            analysis: analysisResponse.analysis, // Resultado da análise
             url: `/news/${newsId}` // link para a página da notícia
           });
         }
@@ -41,6 +45,12 @@ export default function NewsPage() {
 
     fetchNews();
   }, []);
+
+  // Função para truncar o texto e adicionar "..." no final, se necessário
+  const truncateText = (text, maxLength) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
 
   if (loading) {
     return <div className="text-center text-black mt-12">Carregando notícias...</div>;
@@ -62,8 +72,15 @@ export default function NewsPage() {
             {news.map((article, index) => (
               <div key={index} className="mb-8 bg-gray-800 p-6 rounded-lg shadow-md hover:bg-gray-700 transition-all">
                 <h3 className="text-xl font-semibold">{article.title}</h3>
-                <p className="text-lg mb-4">{article.description}</p>
+                <p className="text-lg mb-4">{truncateText(article.description, 200)}</p> {/* Truncando a descrição */}
                 <p className="text-sm text-gray-400">Fonte: {article.source}</p>
+
+                {/* Exibe a análise abaixo do título */}
+                <div className="mt-4 text-gray-300">
+                  <strong>Análise:</strong>
+                  <p>{article.analysis}</p>
+                </div>
+
                 <Link href={article.url} passHref>
                   <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all">
                     Ler mais
