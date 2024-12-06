@@ -20,9 +20,7 @@ export default function NewsPage() {
         const fetchedNews = [];
         for (const [newsId, title] of Object.entries(idTitleDict)) {
           const article = await getNewsById(newsId);
-          
-          // Solicitar análise do GPT
-          const analysisResponse = await analyzeNews(article.title, article.content);
+        
 
           // article deve ter title, content, date, etc.
           // Vamos mapear os campos para o formato desejado no design:
@@ -30,7 +28,7 @@ export default function NewsPage() {
             title: article.title,
             description: article.content,
             source: article.date, // usando a data como "Fonte"
-            analysis: analysisResponse.analysis, // Resultado da análise
+            analysis: article.analysis, // Resultado da análise
             url: `/news/${newsId}` // link para a página da notícia
           });
         }
