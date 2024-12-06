@@ -19,7 +19,7 @@ export default function HomePage() {
     // Função para buscar os dados da API
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/get-prevision');
+        const response = await fetch('http://localhost:8000/get-prevision');
         const data = await response.json();
 
         // Verifique se os dados X_atual, Y_atual, X_fut e Y_fut existem
