@@ -54,3 +54,5 @@ The project combines time series modeling and sentiment analysis to deliver insi
 - Developed the backend using **Python** and **FastAPI**.
 - Built the frontend with **HTML**, **CSS**, and **JavaScript**, integrating visualizations with **Chart.js** or **Plotly**.
 - Implemented dynamic routes to serve forecasts, historical data, and sentiment-analyzed news.
+
+![Logo](/Backend/Targ.png)
