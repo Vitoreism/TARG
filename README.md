@@ -36,7 +36,7 @@ The project combines time series modeling and sentiment analysis to deliver insi
 ## 🛠️ Project Building Steps
 
 ### 📊 Data Collection
-- Collected historical BBAS3 stock data from 2010 onward using the YahooFinance API.
+- Collected historical BBAS3 stock data from 2010 onward using the YahooFinance library.
 - Cleaned and preprocessed the time series data for modeling.
 - Implemented web scraping using **Selenium** to extract the latest news about Banco do Brasil from the **InfoMoney** website.
 
