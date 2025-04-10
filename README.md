@@ -41,7 +41,7 @@ The project combines time series modeling and sentiment analysis to deliver insi
 - Implemented web scraping using **Selenium** to extract the latest news about Banco do Brasil from the **InfoMoney** website.
 
 ### 🤖 Time Series Forecasting
-- Built a forecasting model using **SARIMA** to predict the next 5 trading days.
+- Built a forecasting model using **LSTM** to predict the next 5 trading days.
 - Evaluated the model using metrics such as RMSE and MAPE.
 - Selected the best-performing parameters for deployment.
 
