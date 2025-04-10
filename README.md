@@ -25,7 +25,7 @@ The project combines time series modeling and sentiment analysis to deliver insi
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![SARIMA](https://img.shields.io/badge/SARIMA-FF6F00?style=for-the-badge&logo=python&logoColor=white)
+![LSTM](https://img.shields.io/badge/SARIMA-FF6F00?style=for-the-badge&logo=python&logoColor=white)
 ![OpenAI](https://img.shields.io/badge/OpenAI_API-412991?style=for-the-badge&logo=openai&logoColor=white)
 ![Selenium](https://img.shields.io/badge/Selenium-43B02A?style=for-the-badge&logo=selenium&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
@@ -52,7 +52,7 @@ The project combines time series modeling and sentiment analysis to deliver insi
 
 ### 🧱 Web Application Development
 - Developed the backend using **Python** and **FastAPI**.
-- Built the frontend with **HTML**, **CSS**, and **JavaScript**, integrating visualizations with **Chart.js** or **Plotly**.
+- Built the frontend with **NextJS**, integrating visualizations with **Chart.js** or **Plotly**.
 - Implemented dynamic routes to serve forecasts, historical data, and sentiment-analyzed news.
 
 ![Logo](/Backend/Targ.png)
